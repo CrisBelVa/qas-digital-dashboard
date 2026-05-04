@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QAS-Digital | Formação</title>
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --navy:#0B1120; --navy-mid:#0F1729; --navy-light:#1A2440; --navy-card:#131e35;
+      --teal:#00D4B1; --teal-dark:#00B89A; --teal-glow:rgba(0,212,177,0.18);
+      --teal-subtle:rgba(0,212,177,0.08); --white:#F0F4FF; --muted:#8892A4;
+      --border:rgba(255,255,255,0.07); --red:#FF4C6A; --yellow:#FFD166;
+      --blue:#60A5FA; --orange:#FB923C; --purple:#A78BFA; --sidebar-w:240px;
+      --font-head:'Bricolage Grotesque',sans-serif; --font-body:'Inter',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;}
+    body{background:var(--navy);font-family:var(--font-body);color:var(--white);display:flex;overflow:hidden;}
+
+    /* SIDEBAR */
+    .sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--navy-mid);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:10;}
+    .sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border);}
+    .logo-text{font-family:var(--font-head);font-size:19px;font-weight:800;letter-spacing:-0.3px;}
+    .logo-text span{color:var(--teal);}
+    .logo-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+    .sidebar-section{padding:16px 12px 8px;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);font-weight:600;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;margin:2px 8px;cursor:pointer;font-size:13.5px;color:var(--muted);transition:all 0.2s;text-decoration:none;}
+    .nav-item svg{width:16px;height:16px;flex-shrink:0;}
+    .nav-item:hover{background:var(--navy-light);color:var(--white);}
+    .nav-item.active{background:rgba(167,139,250,0.1);color:var(--purple);}
+    .sidebar-footer{margin-top:auto;padding:16px 12px;border-top:1px solid var(--border);}
+    .user-chip{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:var(--navy-light);}
+    .avatar{width:34px;height:34px;border-radius:50%;background:var(--teal-subtle);border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--teal);flex-shrink:0;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:var(--muted);}
+    .logout-btn{background:none;border:none;cursor:pointer;color:var(--muted);margin-left:auto;display:flex;padding:4px;transition:color 0.2s;}
+    .logout-btn:hover{color:var(--red);}
+    .logout-btn svg{width:15px;height:15px;}
+
+    /* MAIN */
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+    .topbar{padding:18px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--navy-mid);}
+    .topbar-left h1{font-family:var(--font-head);font-size:20px;font-weight:700;}
+    .topbar-left p{font-size:12px;color:var(--muted);margin-top:2px;}
+    .topbar-right{display:flex;align-items:center;gap:10px;}
+    .btn-outline{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:500;color:var(--muted);background:none;cursor:pointer;transition:all 0.2s;font-family:var(--font-body);}
+    .btn-outline:hover{border-color:var(--teal);color:var(--teal);}
+    .btn-outline svg{width:13px;height:13px;}
+    .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+    .tag-purple{background:rgba(167,139,250,0.1);color:var(--purple);border:1px solid rgba(167,139,250,0.2);}
+    .tag-teal{background:var(--teal-subtle);color:var(--teal);border:1px solid rgba(0,212,177,0.2);}
+    .tag-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+    .content{flex:1;overflow-y:auto;padding:24px 28px 40px;}
+    .content::-webkit-scrollbar{width:6px;}
+    .content::-webkit-scrollbar-thumb{background:var(--navy-light);border-radius:3px;}
+
+    /* KPI grid */
+    .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px;}
+    .kpi-card{background:var(--navy-card);border:1px solid var(--border);border-radius:16px;padding:18px;position:relative;overflow:hidden;transition:border-color 0.2s;}
+    .kpi-card:hover{border-color:rgba(167,139,250,0.2);}
+    .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--purple));opacity:0.6;}
+    .kpi-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+    .kpi-icon svg{width:16px;height:16px;}
+    .kpi-value{font-family:var(--font-head);font-size:26px;font-weight:800;line-height:1;margin-bottom:5px;}
+    .kpi-label{font-size:12px;color:var(--muted);}
+    .kpi-sub{font-size:11px;color:var(--muted);margin-top:6px;opacity:0.7;}
+
+    /* Section */
+    .section-title{font-family:var(--font-head);font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+    .section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+    /* Grid layouts */
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+    .grid-3-1{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
+    .grid-1-2{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:16px;}
+
+    /* Chart card */
+    .chart-card{background:var(--navy-card);border:1px solid var(--border);border-radius:16px;padding:22px;}
+    .chart-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;}
+    .chart-title{font-family:var(--font-head);font-size:14px;font-weight:700;}
+    .chart-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+    .chart-badge{font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid;white-space:nowrap;}
+    .chart-badge-teal{color:var(--teal);background:var(--teal-subtle);border-color:rgba(0,212,177,0.15);}
+    .chart-badge-purple{color:var(--purple);background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.2);}
+    .chart-badge-red{color:var(--red);background:rgba(255,76,106,0.08);border-color:rgba(255,76,106,0.2);}
+    .chart-wrap canvas{max-height:220px;}
+
+    /* Progress ring */
+    .ring-wrap{position:relative;display:flex;align-items:center;justify-content:center;width:140px;height:140px;flex-shrink:0;}
+    .ring-wrap canvas{position:absolute;}
+    .ring-center{text-align:center;z-index:1;position:relative;}
+    .ring-pct{font-family:var(--font-head);font-size:28px;font-weight:800;line-height:1;}
+    .ring-label{font-size:11px;color:var(--muted);margin-top:3px;}
+
+    /* Table */
+    .table-wrap{background:var(--navy-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{padding:11px 16px;font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);font-weight:600;text-align:left;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02);white-space:nowrap;}
+    tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s;}
+    tbody tr:last-child{border-bottom:none;}
+    tbody tr:hover{background:rgba(255,255,255,0.02);}
+    td{padding:10px 16px;font-size:13px;vertical-align:middle;}
+
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+    .badge-teal{background:rgba(0,212,177,0.1);color:var(--teal);}
+    .badge-blue{background:rgba(96,165,250,0.1);color:var(--blue);}
+    .badge-yellow{background:rgba(255,209,102,0.1);color:var(--yellow);}
+    .badge-red{background:rgba(255,76,106,0.1);color:var(--red);}
+    .badge-orange{background:rgba(251,146,60,0.1);color:var(--orange);}
+    .badge-purple{background:rgba(167,139,250,0.1);color:var(--purple);}
+    .badge-muted{background:rgba(255,255,255,0.05);color:var(--muted);}
+
+    /* Filter bar */
+    .filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+    .search-wrap{position:relative;flex:1;min-width:180px;}
+    .search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--muted);pointer-events:none;}
+    .search-input{width:100%;background:var(--navy-card);border:1px solid var(--border);border-radius:8px;padding:9px 11px 9px 33px;font-size:13px;color:var(--white);font-family:var(--font-body);outline:none;transition:border-color 0.2s;}
+    .search-input::placeholder{color:var(--muted);}
+    .search-input:focus{border-color:var(--teal);}
+    .filter-select{background:var(--navy-card);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:13px;color:var(--muted);font-family:var(--font-body);outline:none;cursor:pointer;}
+    .filter-select:focus{border-color:var(--teal);color:var(--white);}
+    .filter-count{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap;}
+
+    /* Pagination */
+    .pagination{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-top:1px solid var(--border);}
+    .pag-info{font-size:12px;color:var(--muted);}
+    .pag-btns{display:flex;gap:5px;}
+    .pag-btn{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all 0.2s;}
+    .pag-btn:hover{border-color:var(--teal);color:var(--teal);}
+    .pag-btn.active{background:var(--teal);color:var(--navy);border-color:var(--teal);}
+    .pag-btn:disabled{opacity:0.3;cursor:default;}
+    .pag-btn svg{width:11px;height:11px;}
+
+    /* Progress bar */
+    .prog-wrap{display:flex;align-items:center;gap:10px;}
+    .prog-track{flex:1;height:5px;background:var(--navy-light);border-radius:3px;overflow:hidden;min-width:60px;}
+    .prog-fill{height:100%;border-radius:3px;transition:width 0.3s;}
+    .prog-pct{font-size:11px;font-weight:600;width:30px;text-align:right;flex-shrink:0;}
+
+    /* Legend */
+    .legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;}
+    .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+    .legend-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0;}
+
+    /* Course card */
+    .course-item{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--border);}
+    .course-item:last-child{border-bottom:none;}
+    .course-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;font-family:var(--font-head);}
+    .course-title{font-size:13px;font-weight:600;margin-bottom:3px;}
+    .course-meta{font-size:11px;color:var(--muted);}
+    .course-bar-wrap{margin-top:7px;height:4px;background:var(--navy-light);border-radius:2px;overflow:hidden;}
+    .course-bar-fill{height:100%;border-radius:2px;}
+
+    /* Calendar item */
+    .cal-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+    .cal-item:last-child{border-bottom:none;}
+    .cal-date{width:40px;text-align:center;flex-shrink:0;}
+    .cal-day{font-family:var(--font-head);font-size:20px;font-weight:800;line-height:1;}
+    .cal-month{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);}
+    .cal-title{font-size:13px;font-weight:600;margin-bottom:3px;}
+    .cal-meta{font-size:11px;color:var(--muted);}
+
+    /* Avatar colors */
+    .av-teal{background:rgba(0,212,177,0.15);color:var(--teal);}
+    .av-blue{background:rgba(96,165,250,0.15);color:#60A5FA;}
+    .av-purple{background:rgba(167,139,250,0.15);color:#A78BFA;}
+    .av-orange{background:rgba(251,146,60,0.15);color:#FB923C;}
+    .av-pink{background:rgba(244,114,182,0.15);color:#F472B6;}
+    .av-yellow{background:rgba(250,204,21,0.15);color:#FBBF24;}
+    .av-red{background:rgba(255,76,106,0.15);color:var(--red);}
+
+    @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr);}.grid-3{grid-template-columns:1fr 1fr;}.grid-3-1{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">QAS<span>-Digital</span></div>
+    <div class="logo-sub">Gestão Integrada · SST</div>
+  </div>
+  <div class="sidebar-section">Principal</div>
+  <a class="nav-item" href="dashboard.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </a>
+  <a class="nav-item" href="colaboradores.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Colaboradores
+  </a>
+  <a class="nav-item" href="exames.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    Exames de Saúde
+  </a>
+  <a class="nav-item" href="acidentes.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Acidentes
+  </a>
+  <a class="nav-item active" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    Formação
+  </a>
+  <div class="sidebar-section">Gestão</div>
+  <a class="nav-item" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Relatórios
+  </a>
+  <a class="nav-item" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+    Configurações
+  </a>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="avatar">A</div>
+      <div class="user-info">
+        <div class="name">Admin</div>
+        <div class="role">Administrador</div>
+      </div>
+      <button class="logout-btn" onclick="window.location.href='login.html'" title="Sair">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Formação SST</h1>
+      <p>Plano de formação anual · 87 trabalhadores · 2024</p>
+    </div>
+    <div class="topbar-right">
+      <div class="tag tag-purple"><span class="tag-dot"></span>35.6% conformidade</div>
+      <button class="btn-outline" onclick="exportCSV()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar Relatório
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- KPI ROW -->
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--accent:var(--purple);">
+        <div class="kpi-icon" style="background:rgba(167,139,250,0.12);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <div class="kpi-value" style="color:var(--purple);">14</div>
+        <div class="kpi-label">Ações de Formação</div>
+        <div class="kpi-sub">Realizadas em 2024</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--blue);">
+        <div class="kpi-icon" style="background:rgba(96,165,250,0.12);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="kpi-value" style="color:var(--blue);">1.218</div>
+        <div class="kpi-label">Horas de Formação</div>
+        <div class="kpi-sub">~14h por trabalhador</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--teal);">
+        <div class="kpi-icon" style="background:var(--teal-subtle);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="kpi-value" style="color:var(--teal);">31</div>
+        <div class="kpi-label">Formações Concluídas</div>
+        <div class="kpi-sub">35.6% dos trabalhadores</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--yellow);">
+        <div class="kpi-icon" style="background:rgba(255,209,102,0.12);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="kpi-value" style="color:var(--yellow);">40</div>
+        <div class="kpi-label">Em Progresso</div>
+        <div class="kpi-sub">46.0% dos trabalhadores</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--red);">
+        <div class="kpi-icon" style="background:rgba(255,76,106,0.12);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="kpi-value" style="color:var(--red);">16</div>
+        <div class="kpi-label">Em Atraso</div>
+        <div class="kpi-sub">Requerem atenção</div>
+      </div>
+    </div>
+
+    <!-- STATUS + MONTHLY TREND -->
+    <div class="grid-3-1" style="margin-bottom:16px;">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Evolução Mensal de Formações Concluídas · 2024</div>
+            <div class="chart-sub">Trabalhadores que concluíram módulos por mês</div>
+          </div>
+          <div class="chart-badge chart-badge-purple">87 trabalhadores</div>
+        </div>
+        <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--teal);"></div>Concluído</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--yellow);"></div>Em Progresso</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--red);"></div>Em Atraso</div>
+        </div>
+      </div>
+
+      <!-- STATUS DONUT -->
+      <div class="chart-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div class="chart-header" style="width:100%;">
+          <div>
+            <div class="chart-title">Estado Geral</div>
+            <div class="chart-sub">Distribuição dos 87 trab.</div>
+          </div>
+        </div>
+        <div style="position:relative;width:140px;height:140px;margin:0 auto 16px;">
+          <canvas id="statusDonut"></canvas>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div style="font-family:var(--font-head);font-size:26px;font-weight:800;line-height:1;">87</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">total</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;width:100%;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;"><div style="width:9px;height:9px;border-radius:3px;background:var(--teal);"></div>Concluído</div>
+            <div style="font-size:13px;font-weight:700;color:var(--teal);">31 <span style="font-size:11px;color:var(--muted);font-weight:400;">(35.6%)</span></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;"><div style="width:9px;height:9px;border-radius:3px;background:var(--yellow);"></div>Em Progresso</div>
+            <div style="font-size:13px;font-weight:700;color:var(--yellow);">40 <span style="font-size:11px;color:var(--muted);font-weight:400;">(46.0%)</span></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;"><div style="width:9px;height:9px;border-radius:3px;background:var(--red);"></div>Em Atraso</div>
+            <div style="font-size:13px;font-weight:700;color:var(--red);">16 <span style="font-size:11px;color:var(--muted);font-weight:400;">(18.4%)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEPT COVERAGE + TOP COURSES -->
+    <div class="grid-3-1" style="margin-bottom:16px;">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Cobertura por Departamento</div>
+            <div class="chart-sub">% de trabalhadores com formação concluída</div>
+          </div>
+          <div class="chart-badge chart-badge-teal">8 departamentos</div>
+        </div>
+        <div class="chart-wrap"><canvas id="deptChart"></canvas></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Módulos em Destaque</div>
+            <div class="chart-sub">Taxa de conclusão por curso</div>
+          </div>
+        </div>
+        <div id="courseList">
+          <div class="course-item">
+            <div class="course-num" style="background:rgba(0,212,177,0.12);color:var(--teal);">1</div>
+            <div style="flex:1;min-width:0;">
+              <div class="course-title">Segurança em Trabalho em Altura</div>
+              <div class="course-meta">Obrigatório · 87 inscritos · 6h</div>
+              <div class="course-bar-wrap"><div class="course-bar-fill" style="width:72%;background:var(--teal);"></div></div>
+              <div style="font-size:10px;color:var(--muted);margin-top:3px;">72% concluído · 63 certificados emitidos</div>
+            </div>
+          </div>
+          <div class="course-item">
+            <div class="course-num" style="background:rgba(96,165,250,0.12);color:var(--blue);">2</div>
+            <div style="flex:1;min-width:0;">
+              <div class="course-title">Primeiros Socorros Básicos</div>
+              <div class="course-meta">Obrigatório · 87 inscritos · 8h</div>
+              <div class="course-bar-wrap"><div class="course-bar-fill" style="width:58%;background:var(--blue);"></div></div>
+              <div style="font-size:10px;color:var(--muted);margin-top:3px;">58% concluído · 51 certificados emitidos</div>
+            </div>
+          </div>
+          <div class="course-item">
+            <div class="course-num" style="background:rgba(255,209,102,0.12);color:var(--yellow);">3</div>
+            <div style="flex:1;min-width:0;">
+              <div class="course-title">Manuseamento de Produtos Químicos</div>
+              <div class="course-meta">Obrigatório · 87 inscritos · 4h</div>
+              <div class="course-bar-wrap"><div class="course-bar-fill" style="width:45%;background:var(--yellow);"></div></div>
+              <div style="font-size:10px;color:var(--muted);margin-top:3px;">45% concluído · 39 certificados emitidos</div>
+            </div>
+          </div>
+          <div class="course-item">
+            <div class="course-num" style="background:rgba(167,139,250,0.12);color:var(--purple);">4</div>
+            <div style="flex:1;min-width:0;">
+              <div class="course-title">Utilização de EPI</div>
+              <div class="course-meta">Obrigatório · 87 inscritos · 3h</div>
+              <div class="course-bar-wrap"><div class="course-bar-fill" style="width:82%;background:var(--purple);"></div></div>
+              <div style="font-size:10px;color:var(--muted);margin-top:3px;">82% concluído · 71 certificados emitidos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SESSIONS TABLE -->
+    <div class="section-title">Plano de Formação · 2024</div>
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" type="text" placeholder="Pesquisar formação..." id="sessSearch" oninput="renderTable()" />
+      </div>
+      <select class="filter-select" id="filterStatus" onchange="renderTable()">
+        <option value="">Todos os estados</option>
+        <option value="Concluída">Concluída</option>
+        <option value="Em Progresso">Em Progresso</option>
+        <option value="Agendada">Agendada</option>
+        <option value="Cancelada">Cancelada</option>
+      </select>
+      <select class="filter-select" id="filterType" onchange="renderTable()">
+        <option value="">Todos os tipos</option>
+        <option value="Obrigatória">Obrigatória</option>
+        <option value="Complementar">Complementar</option>
+        <option value="Ação de Informação">Ação de Informação</option>
+      </select>
+      <div class="filter-count" id="sessCount">14 formações</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Formação</th>
+            <th>Tipo</th>
+            <th>Data</th>
+            <th>Duração</th>
+            <th>Formandos</th>
+            <th>Progresso</th>
+            <th>Responsável</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="sessTableBody"></tbody>
+      </table>
+      <div class="pagination" id="sessPagination"></div>
+    </div>
+
+    <!-- UPCOMING + OVERDUE -->
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Próximas Formações · 2025</div>
+            <div class="chart-sub">Sessões agendadas para o próximo período</div>
+          </div>
+          <div class="chart-badge chart-badge-purple">5 sessões</div>
+        </div>
+        <div id="calList">
+          <div class="cal-item">
+            <div class="cal-date"><div class="cal-day" style="color:var(--teal);">15</div><div class="cal-month">Jan</div></div>
+            <div>
+              <div class="cal-title">Renovação — Trabalho em Altura (Nível II)</div>
+              <div class="cal-meta">8h · 22 formandos · Empresa externa · Obrigatória</div>
+            </div>
+            <div class="badge badge-teal" style="margin-left:auto;flex-shrink:0;">Confirmada</div>
+          </div>
+          <div class="cal-item">
+            <div class="cal-date"><div class="cal-day" style="color:var(--blue);">28</div><div class="cal-month">Jan</div></div>
+            <div>
+              <div class="cal-title">Gestão de Emergências e Evacuação</div>
+              <div class="cal-meta">4h · 87 formandos · Simulacro · Obrigatória</div>
+            </div>
+            <div class="badge badge-blue" style="margin-left:auto;flex-shrink:0;">Confirmada</div>
+          </div>
+          <div class="cal-item">
+            <div class="cal-date"><div class="cal-day" style="color:var(--yellow);">12</div><div class="cal-month">Fev</div></div>
+            <div>
+              <div class="cal-title">Manuseamento Seguro de Equipamentos Pesados</div>
+              <div class="cal-meta">6h · 34 formandos · Construção Civil</div>
+            </div>
+            <div class="badge badge-yellow" style="margin-left:auto;flex-shrink:0;">Pendente</div>
+          </div>
+          <div class="cal-item">
+            <div class="cal-date"><div class="cal-day" style="color:var(--purple);">05</div><div class="cal-month">Mar</div></div>
+            <div>
+              <div class="cal-title">Atualização em Legislação SST 2025</div>
+              <div class="cal-meta">3h · Todos os trabalhadores · Online</div>
+            </div>
+            <div class="badge badge-yellow" style="margin-left:auto;flex-shrink:0;">Pendente</div>
+          </div>
+          <div class="cal-item">
+            <div class="cal-date"><div class="cal-day" style="color:var(--orange);">20</div><div class="cal-month">Mar</div></div>
+            <div>
+              <div class="cal-title">Renovação — Certificado de Primeiros Socorros</div>
+              <div class="cal-meta">8h · 36 formandos · Cruz Vermelha</div>
+            </div>
+            <div class="badge badge-orange" style="margin-left:auto;flex-shrink:0;">Em análise</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Trabalhadores com Formação em Atraso</div>
+            <div class="chart-sub">Requerem intervenção imediata — 16 casos</div>
+          </div>
+          <div class="chart-badge chart-badge-red">16 em atraso</div>
+        </div>
+        <div id="overdueList">
+          <div class="course-item">
+            <div class="course-num av-red" style="width:28px;height:28px;">MS</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div class="course-title">Manuel Silva</div>
+                <div class="badge badge-red">+62 dias</div>
+              </div>
+              <div class="course-meta">Construção Civil · Segurança em Altura — venceu em 23/10/2024</div>
+            </div>
+          </div>
+          <div class="course-item">
+            <div class="course-num av-red" style="width:28px;height:28px;">JP</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div class="course-title">João Pinto</div>
+                <div class="badge badge-red">+48 dias</div>
+              </div>
+              <div class="course-meta">Infraestrutura · Primeiros Socorros — venceu em 06/11/2024</div>
+            </div>
+          </div>
+          <div class="course-item">
+            <div class="course-num av-orange" style="width:28px;height:28px;">AC</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div class="course-title">André Costa</div>
+                <div class="badge badge-orange">+31 dias</div>
+              </div>
+              <div class="course-meta">Manutenção · EPI e Equipamentos — venceu em 24/11/2024</div>
+            </div>
+          </div>
+          <div class="course-item">
+            <div class="course-num av-orange" style="width:28px;height:28px;">PM</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div class="course-title">Pedro Martins</div>
+                <div class="badge badge-orange">+29 dias</div>
+              </div>
+              <div class="course-meta">Topografia · Produtos Químicos — venceu em 26/11/2024</div>
+            </div>
+          </div>
+          <div class="course-item">
+            <div class="course-num av-yellow" style="width:28px;height:28px;">RO</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div class="course-title">Ricardo Oliveira</div>
+                <div class="badge badge-yellow">+14 dias</div>
+              </div>
+              <div class="course-meta">Construção Civil · Segurança Geral — venceu em 11/12/2024</div>
+            </div>
+          </div>
+          <div style="padding:12px 0 0;text-align:center;">
+            <a href="colaboradores.html" style="font-size:12px;color:var(--teal);text-decoration:none;display:inline-flex;align-items:center;gap:5px;">
+              Ver todos os 16 em atraso em Colaboradores
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFORMATION ACTIONS -->
+    <div class="section-title">Ações de Informação e Sensibilização · 2024</div>
+    <div class="grid-3" style="margin-bottom:0;">
+      <div class="chart-card" style="border-color:rgba(0,212,177,0.15);">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div class="kpi-icon" style="background:var(--teal-subtle);margin-bottom:0;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div>
+            <div class="chart-title">Campanhas de Sensibilização</div>
+            <div class="chart-sub">Comunicações internas</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.8;">
+          • Campanha "Usar EPI Salva Vidas" — Abr 2024<br>
+          • Newsletter SST trimestral (4 edições)<br>
+          • Afixação de cartazes de segurança em obra<br>
+          • Reunião mensal de segurança com encarregados
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+          <div class="badge badge-teal">87 abrangidos</div>
+          <div class="badge badge-muted">8 ações</div>
+        </div>
+      </div>
+      <div class="chart-card" style="border-color:rgba(96,165,250,0.15);">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div class="kpi-icon" style="background:rgba(96,165,250,0.12);margin-bottom:0;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <div>
+            <div class="chart-title">Materiais Distribuídos</div>
+            <div class="chart-sub">Documentação e recursos</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.8;">
+          • Manual de SST — atualizado Jan 2024<br>
+          • Fichas de segurança por posto de trabalho<br>
+          • Guia de procedimentos em caso de acidente<br>
+          • Plano de emergência e evacuação (Rev.3)
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+          <div class="badge badge-blue">4 documentos</div>
+          <div class="badge badge-muted">87 cópias</div>
+        </div>
+      </div>
+      <div class="chart-card" style="border-color:rgba(167,139,250,0.15);">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div class="kpi-icon" style="background:rgba(167,139,250,0.12);margin-bottom:0;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div>
+            <div class="chart-title">Indicadores de Eficácia</div>
+            <div class="chart-sub">Avaliação do impacto formativo</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.8;">
+          • Nota média de avaliação: <strong style="color:var(--white);">16.4 / 20</strong><br>
+          • Taxa de aprovação nos testes: <strong style="color:var(--white);">91%</strong><br>
+          • Satisfação dos formandos: <strong style="color:var(--white);">4.3 / 5 ⭐</strong><br>
+          • Certificados emitidos: <strong style="color:var(--white);">224</strong>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+          <div class="badge badge-purple">91% aprovação</div>
+          <div class="badge badge-muted">224 certificados</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+/* ── SESSIONS DATA ── */
+const sessions = [
+  { title:'Segurança em Trabalho em Altura (Nível I)', type:'Obrigatória', date:'2024-01-18', duration:'6h', enrolled:87, completed:63, responsible:'Técnico SST Externo', status:'Concluída' },
+  { title:'Primeiros Socorros Básicos', type:'Obrigatória', date:'2024-02-08', duration:'8h', enrolled:87, completed:51, responsible:'Cruz Vermelha Portuguesa', status:'Concluída' },
+  { title:'Integração e Acolhimento SST — Novos Trabalhadores', type:'Obrigatória', date:'2024-02-22', duration:'4h', enrolled:12, completed:12, responsible:'Diretor SHST', status:'Concluída' },
+  { title:'Simulacro de Emergência e Evacuação', type:'Obrigatória', date:'2024-03-14', duration:'3h', enrolled:87, completed:87, responsible:'Equipa de Emergência', status:'Concluída' },
+  { title:'Manuseamento de Produtos Químicos — H312', type:'Obrigatória', date:'2024-03-28', duration:'4h', enrolled:87, completed:39, responsible:'Técnico SST Interno', status:'Concluída' },
+  { title:'Utilização e Manutenção de EPI', type:'Obrigatória', date:'2024-04-11', duration:'3h', enrolled:87, completed:71, responsible:'Técnico SST Interno', status:'Concluída' },
+  { title:'Ergonomia e Prevenção de Lesões MSE', type:'Complementar', date:'2024-05-16', duration:'5h', enrolled:54, completed:38, responsible:'Fisioterapeuta Parceiro', status:'Concluída' },
+  { title:'Liderança em Segurança — Encarregados', type:'Complementar', date:'2024-06-06', duration:'8h', enrolled:9, completed:9, responsible:'Consultora Ext. RH', status:'Concluída' },
+  { title:'Operação de Gruas e Equipamentos de Elevação', type:'Obrigatória', date:'2024-07-04', duration:'16h', enrolled:22, completed:18, responsible:'Técnico Certificado', status:'Concluída' },
+  { title:'Atualização em Normas ISO 45001:2018', type:'Complementar', date:'2024-08-22', duration:'4h', enrolled:15, completed:11, responsible:'Consultora Qualidade', status:'Concluída' },
+  { title:'Segurança em Trabalho em Altura (Nível II)', type:'Obrigatória', date:'2024-09-12', duration:'8h', enrolled:35, completed:20, responsible:'Técnico SST Externo', status:'Em Progresso' },
+  { title:'Prevenção de Riscos Elétricos', type:'Obrigatória', date:'2024-10-10', duration:'6h', enrolled:28, completed:14, responsible:'EDP Distribuição', status:'Em Progresso' },
+  { title:'Gestão de Resíduos de Obra', type:'Ação de Informação', date:'2024-11-07', duration:'2h', enrolled:87, completed:45, responsible:'Técnico Ambiente', status:'Em Progresso' },
+  { title:'Análise e Investigação de Acidentes', type:'Complementar', date:'2024-12-05', duration:'4h', enrolled:9, completed:0, responsible:'Técnico SST Interno', status:'Agendada' },
+];
+
+let currentPage = 1;
+const perPage = 8;
+
+function statusBadge(s) {
+  const map = { 'Concluída':'badge-teal', 'Em Progresso':'badge-yellow', 'Agendada':'badge-blue', 'Cancelada':'badge-red' };
+  return `<span class="badge ${map[s]||'badge-muted'}">${s}</span>`;
+}
+function typeBadge(t) {
+  const map = { 'Obrigatória':'badge-red', 'Complementar':'badge-purple', 'Ação de Informação':'badge-blue' };
+  return `<span class="badge ${map[t]||'badge-muted'}">${t}</span>`;
+}
+function fmtDate(d) {
+  const [y,m,day] = d.split('-');
+  const months = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return `${parseInt(day)} ${months[parseInt(m)]} ${y}`;
+}
+
+function renderTable() {
+  const search = document.getElementById('sessSearch').value.toLowerCase();
+  const st = document.getElementById('filterStatus').value;
+  const ty = document.getElementById('filterType').value;
+
+  const filtered = sessions.filter(s =>
+    (!search || s.title.toLowerCase().includes(search) || s.responsible.toLowerCase().includes(search)) &&
+    (!st || s.status === st) &&
+    (!ty || s.type === ty)
+  );
+
+  document.getElementById('sessCount').textContent = `${filtered.length} formação${filtered.length !== 1 ? 'ões' : ''}`;
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  if (currentPage > totalPages) currentPage = 1;
+  const page = filtered.slice((currentPage-1)*perPage, currentPage*perPage);
+
+  const tbody = document.getElementById('sessTableBody');
+  tbody.innerHTML = page.length === 0
+    ? `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted);font-size:13px;">Nenhuma formação encontrada</td></tr>`
+    : page.map(s => {
+        const pct = s.enrolled > 0 ? Math.round(s.completed / s.enrolled * 100) : 0;
+        const barColor = pct >= 80 ? 'var(--teal)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+        return `<tr>
+          <td style="font-size:13px;font-weight:600;max-width:240px;">${s.title}</td>
+          <td>${typeBadge(s.type)}</td>
+          <td style="font-size:12px;color:var(--muted);white-space:nowrap;">${fmtDate(s.date)}</td>
+          <td style="font-size:12px;text-align:center;">${s.duration}</td>
+          <td style="font-size:12px;text-align:center;">${s.enrolled}</td>
+          <td>
+            <div class="prog-wrap">
+              <div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${barColor};"></div></div>
+              <div class="prog-pct" style="color:${barColor};">${pct}%</div>
+            </div>
+          </td>
+          <td style="font-size:12px;color:var(--muted);">${s.responsible}</td>
+          <td>${statusBadge(s.status)}</td>
+        </tr>`;
+      }).join('');
+
+  // Pagination
+  const pag = document.getElementById('sessPagination');
+  let btns = `<div class="pag-info">Mostrando ${Math.min((currentPage-1)*perPage+1, filtered.length)}–${Math.min(currentPage*perPage, filtered.length)} de ${filtered.length}</div><div class="pag-btns">`;
+  btns += `<button class="pag-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    btns += `<button class="pag-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  btns += `<button class="pag-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </button></div>`;
+  pag.innerHTML = btns;
+}
+
+function goPage(p) { currentPage = p; renderTable(); }
+renderTable();
+
+/* ── CHARTS ── */
+
+// Monthly chart — stacked bar
+new Chart(document.getElementById('monthlyChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+    datasets: [
+      { label:'Concluído',      data:[3,5,6,4,3,2,2,2,1,1,1,1], backgroundColor:'rgba(0,212,177,0.7)',   borderRadius:3, stack:'a' },
+      { label:'Em Progresso',   data:[2,3,4,5,4,4,5,4,5,4,2,1], backgroundColor:'rgba(255,209,102,0.7)', borderRadius:3, stack:'a' },
+      { label:'Em Atraso',      data:[0,0,0,1,1,1,1,2,2,3,3,2], backgroundColor:'rgba(255,76,106,0.7)',  borderRadius:3, stack:'a' },
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:true,
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{ stacked:true, grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#8892A4',font:{size:10}} },
+      y:{ stacked:true, grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#8892A4',font:{size:10},precision:0}, min:0 }
+    }
+  }
+});
+
+// Status donut
+new Chart(document.getElementById('statusDonut'), {
+  type: 'doughnut',
+  data: {
+    labels:['Concluído','Em Progresso','Em Atraso'],
+    datasets:[{ data:[31,40,16], backgroundColor:['rgba(0,212,177,0.8)','rgba(255,209,102,0.8)','rgba(255,76,106,0.8)'], borderColor:['rgba(0,212,177,0.2)','rgba(255,209,102,0.2)','rgba(255,76,106,0.2)'], borderWidth:1 }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false, cutout:'72%',
+    plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ` ${ctx.parsed} trabalhadores` } } }
+  }
+});
+
+// Department coverage horizontal bar
+new Chart(document.getElementById('deptChart'), {
+  type: 'bar',
+  data: {
+    labels:['Construção Civil','Infraestrutura','Topografia','Manutenção','Armazém','Elétrica','Administrativo','Gestão'],
+    datasets:[{
+      data:[32,42,55,28,19,45,67,100],
+      backgroundColor: ctx => {
+        const v = ctx.parsed.x;
+        return v >= 60 ? 'rgba(0,212,177,0.7)' : v >= 35 ? 'rgba(255,209,102,0.7)' : 'rgba(255,76,106,0.7)';
+      },
+      borderRadius:6
+    }]
+  },
+  options:{
+    indexAxis:'y', responsive:true, maintainAspectRatio:true,
+    plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ` ${ctx.parsed.x}% com formação concluída` } } },
+    scales:{
+      x:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#8892A4',font:{size:10},callback: v => v+'%'}, min:0, max:100 },
+      y:{ grid:{display:false}, ticks:{color:'#8892A4',font:{size:11}} }
+    }
+  }
+});
+
+/* ── EXPORT ── */
+function exportCSV() {
+  const rows = [['Formação','Tipo','Data','Duração','Formandos','Concluídos','% Conclusão','Responsável','Estado']];
+  sessions.forEach(s => {
+    const pct = s.enrolled > 0 ? Math.round(s.completed/s.enrolled*100) : 0;
+    rows.push([s.title, s.type, s.date, s.duration, s.enrolled, s.completed, pct+'%', s.responsible, s.status]);
+  });
+  const csv = rows.map(r => r.map(v=>`"${v}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download = 'formacao_sst_2024.csv';
+  a.click();
+}
+</script>
+</body>
+</html>

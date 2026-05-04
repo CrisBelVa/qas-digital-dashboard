@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QAS-Digital | Exames de Saúde</title>
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --navy:#0B1120; --navy-mid:#0F1729; --navy-light:#1A2440; --navy-card:#131e35;
+      --teal:#00D4B1; --teal-dark:#00B89A; --teal-glow:rgba(0,212,177,0.18);
+      --teal-subtle:rgba(0,212,177,0.08); --white:#F0F4FF; --muted:#8892A4;
+      --border:rgba(255,255,255,0.07); --red:#FF4C6A; --yellow:#FFD166;
+      --blue:#60A5FA; --sidebar-w:240px;
+      --font-head:'Bricolage Grotesque',sans-serif; --font-body:'Inter',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;}
+    body{background:var(--navy);font-family:var(--font-body);color:var(--white);display:flex;overflow:hidden;}
+
+    /* SIDEBAR */
+    .sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--navy-mid);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:10;}
+    .sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border);}
+    .logo-text{font-family:var(--font-head);font-size:19px;font-weight:800;letter-spacing:-0.3px;}
+    .logo-text span{color:var(--teal);}
+    .logo-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+    .sidebar-section{padding:16px 12px 8px;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);font-weight:600;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;margin:2px 8px;cursor:pointer;font-size:13.5px;color:var(--muted);transition:all 0.2s;text-decoration:none;}
+    .nav-item svg{width:16px;height:16px;flex-shrink:0;}
+    .nav-item:hover{background:var(--navy-light);color:var(--white);}
+    .nav-item.active{background:var(--teal-subtle);color:var(--teal);}
+    .sidebar-footer{margin-top:auto;padding:16px 12px;border-top:1px solid var(--border);}
+    .user-chip{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:var(--navy-light);}
+    .avatar{width:34px;height:34px;border-radius:50%;background:var(--teal-subtle);border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--teal);flex-shrink:0;}
+    .user-info .name{font-size:13px;font-weight:600;}
+    .user-info .role{font-size:11px;color:var(--muted);}
+    .logout-btn{background:none;border:none;cursor:pointer;color:var(--muted);margin-left:auto;display:flex;padding:4px;transition:color 0.2s;}
+    .logout-btn:hover{color:var(--red);}
+    .logout-btn svg{width:15px;height:15px;}
+
+    /* MAIN */
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+    .topbar{padding:18px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--navy-mid);}
+    .topbar-left h1{font-family:var(--font-head);font-size:20px;font-weight:700;}
+    .topbar-left p{font-size:12px;color:var(--muted);margin-top:2px;}
+    .topbar-right{display:flex;align-items:center;gap:10px;}
+    .btn-outline{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:500;color:var(--muted);background:none;cursor:pointer;transition:all 0.2s;font-family:var(--font-body);}
+    .btn-outline:hover{border-color:var(--teal);color:var(--teal);}
+    .btn-outline svg{width:13px;height:13px;}
+    .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+    .tag-teal{background:var(--teal-subtle);color:var(--teal);border:1px solid rgba(0,212,177,0.2);}
+    .tag-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+    .content{flex:1;overflow-y:auto;padding:24px 28px 40px;}
+    .content::-webkit-scrollbar{width:6px;}
+    .content::-webkit-scrollbar-thumb{background:var(--navy-light);border-radius:3px;}
+
+    /* KPI grid */
+    .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px;}
+    .kpi-card{background:var(--navy-card);border:1px solid var(--border);border-radius:16px;padding:18px;position:relative;overflow:hidden;transition:border-color 0.2s;}
+    .kpi-card:hover{border-color:rgba(0,212,177,0.2);}
+    .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--teal));opacity:0.6;}
+    .kpi-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+    .kpi-icon svg{width:16px;height:16px;}
+    .kpi-value{font-family:var(--font-head);font-size:26px;font-weight:800;line-height:1;margin-bottom:5px;}
+    .kpi-label{font-size:12px;color:var(--muted);}
+    .kpi-sub{font-size:11px;color:var(--muted);margin-top:6px;opacity:0.7;}
+
+    /* Section */
+    .section-title{font-family:var(--font-head);font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+    .section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+    /* Grid layouts */
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+    .grid-3-1{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
+
+    /* Chart card */
+    .chart-card{background:var(--navy-card);border:1px solid var(--border);border-radius:16px;padding:22px;}
+    .chart-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;}
+    .chart-title{font-family:var(--font-head);font-size:14px;font-weight:700;}
+    .chart-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+    .chart-badge{font-size:11px;color:var(--teal);background:var(--teal-subtle);padding:3px 9px;border-radius:20px;border:1px solid rgba(0,212,177,0.15);white-space:nowrap;}
+    .chart-wrap canvas{max-height:220px;}
+
+    /* Alerts panel */
+    .alerts-card{background:var(--navy-card);border:1px solid var(--border);border-radius:16px;padding:22px;}
+    .alert-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+    .alert-item:last-child{border-bottom:none;}
+    .alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    .alert-name{font-size:13px;font-weight:600;flex:1;}
+    .alert-meta{font-size:11px;color:var(--muted);}
+    .alert-days{font-size:12px;font-weight:700;white-space:nowrap;}
+    .days-red{color:var(--red);}
+    .days-yellow{color:var(--yellow);}
+    .days-green{color:var(--teal);}
+
+    /* Table */
+    .table-wrap{background:var(--navy-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{padding:11px 16px;font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);font-weight:600;text-align:left;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02);white-space:nowrap;}
+    tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s;}
+    tbody tr:last-child{border-bottom:none;}
+    tbody tr:hover{background:rgba(255,255,255,0.02);}
+    td{padding:10px 16px;font-size:13px;vertical-align:middle;}
+
+    .emp-cell{display:flex;align-items:center;gap:9px;}
+    .emp-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+    .emp-name{font-weight:600;font-size:12px;}
+    .emp-dept{font-size:11px;color:var(--muted);}
+
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+    .badge-teal{background:rgba(0,212,177,0.1);color:var(--teal);}
+    .badge-blue{background:rgba(96,165,250,0.1);color:var(--blue);}
+    .badge-yellow{background:rgba(255,209,102,0.1);color:var(--yellow);}
+    .badge-red{background:rgba(255,76,106,0.1);color:var(--red);}
+    .badge-muted{background:rgba(255,255,255,0.05);color:var(--muted);}
+
+    .result-apto{color:var(--teal);font-weight:600;}
+    .result-pending{color:var(--muted);}
+
+    /* Pagination */
+    .pagination{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-top:1px solid var(--border);}
+    .pag-info{font-size:12px;color:var(--muted);}
+    .pag-btns{display:flex;gap:5px;}
+    .pag-btn{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all 0.2s;}
+    .pag-btn:hover{border-color:var(--teal);color:var(--teal);}
+    .pag-btn.active{background:var(--teal);color:var(--navy);border-color:var(--teal);}
+    .pag-btn:disabled{opacity:0.3;cursor:default;}
+    .pag-btn svg{width:11px;height:11px;}
+
+    /* Filter bar */
+    .filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+    .search-wrap{position:relative;flex:1;min-width:180px;}
+    .search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--muted);pointer-events:none;}
+    .search-input{width:100%;background:var(--navy-card);border:1px solid var(--border);border-radius:8px;padding:9px 11px 9px 33px;font-size:13px;color:var(--white);font-family:var(--font-body);outline:none;transition:border-color 0.2s;}
+    .search-input::placeholder{color:var(--muted);}
+    .search-input:focus{border-color:var(--teal);}
+    .filter-select{background:var(--navy-card);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:13px;color:var(--muted);font-family:var(--font-body);outline:none;cursor:pointer;}
+    .filter-select:focus{border-color:var(--teal);color:var(--white);}
+    .filter-count{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap;}
+
+    /* Complementary table */
+    .comp-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+    .comp-row:last-child{border-bottom:none;}
+    .comp-bar-wrap{width:120px;height:5px;background:var(--navy-light);border-radius:3px;overflow:hidden;margin-left:12px;}
+    .comp-bar-fill{height:100%;border-radius:3px;background:var(--teal);}
+
+    /* Legend */
+    .legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;}
+    .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+    .legend-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0;}
+
+    /* Avatar colors */
+    .av-teal{background:rgba(0,212,177,0.15);color:var(--teal);}
+    .av-blue{background:rgba(96,165,250,0.15);color:#60A5FA;}
+    .av-purple{background:rgba(167,139,250,0.15);color:#A78BFA;}
+    .av-orange{background:rgba(251,146,60,0.15);color:#FB923C;}
+    .av-pink{background:rgba(244,114,182,0.15);color:#F472B6;}
+    .av-yellow{background:rgba(250,204,21,0.15);color:#FBBF24;}
+
+    @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr);}.grid-3{grid-template-columns:1fr 1fr;}}
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">QAS<span>-Digital</span></div>
+    <div class="logo-sub">Gestão Integrada · SST</div>
+  </div>
+  <div class="sidebar-section">Principal</div>
+  <a class="nav-item" href="dashboard.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </a>
+  <a class="nav-item" href="colaboradores.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Colaboradores
+  </a>
+  <a class="nav-item active" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    Exames de Saúde
+  </a>
+  <a class="nav-item" href="acidentes.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Acidentes
+  </a>
+  <a class="nav-item" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    Formação
+  </a>
+  <div class="sidebar-section">Gestão</div>
+  <a class="nav-item" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    Relatórios
+  </a>
+  <a class="nav-item" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg>
+    Configurações
+  </a>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="avatar">A</div>
+      <div class="user-info"><div class="name">Admin</div><div class="role">Administrador</div></div>
+      <button class="logout-btn" onclick="window.location.href='login.html'" title="Sair">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Exames de Saúde</h1>
+      <p>Vigilância da saúde ocupacional · Construção Pública, EPE · Ano de referência 2024</p>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-outline" id="exportBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar CSV
+      </button>
+      <span class="tag tag-teal"><span class="tag-dot"></span>Serviço Externo · INTERPREV</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--accent:var(--teal)">
+        <div class="kpi-icon" style="background:var(--teal-subtle);color:var(--teal)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="kpi-value">83</div>
+        <div class="kpi-label">Exames Clínicos</div>
+        <div class="kpi-sub">37H · 46F realizados</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--blue)">
+        <div class="kpi-icon" style="background:rgba(96,165,250,0.1);color:var(--blue)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <div class="kpi-value" style="color:var(--blue)">1 137</div>
+        <div class="kpi-label">Exames Complementares</div>
+        <div class="kpi-sub">4 tipos realizados</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--yellow)">
+        <div class="kpi-icon" style="background:rgba(255,209,102,0.1);color:var(--yellow)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div class="kpi-value" style="color:var(--yellow)">27</div>
+        <div class="kpi-label">Vacinações (Gripe)</div>
+        <div class="kpi-sub">11H · 16F · 31% cobertura</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--teal)">
+        <div class="kpi-icon" style="background:var(--teal-subtle);color:var(--teal)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="kpi-value">100%</div>
+        <div class="kpi-label">Taxa de Aptidão</div>
+        <div class="kpi-sub">87 Aptos · 0 Inaptos</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--red)">
+        <div class="kpi-icon" style="background:rgba(255,76,106,0.1);color:var(--red)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="kpi-value" style="color:var(--red)" id="kpiDue">8</div>
+        <div class="kpi-label">Exames a Vencer</div>
+        <div class="kpi-sub">Próximos 60 dias</div>
+      </div>
+    </div>
+
+    <!-- Row 1: Timeline + Type donut -->
+    <div class="section-title">Evolução Temporal</div>
+    <div class="grid-3-1" style="margin-bottom:16px">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Exames por Mês — 2024</div>
+            <div class="chart-sub">Clínicos e complementares ao longo do ano</div>
+          </div>
+          <span class="chart-badge">83 clínicos · 1137 complementares</span>
+        </div>
+        <div class="chart-wrap"><canvas id="timelineChart"></canvas></div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Admissão</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Periódicos</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Ocasionais</div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Tipo de Exame</div>
+            <div class="chart-sub">Distribuição dos 83 exames</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+          <div style="position:relative;width:150px;height:150px;">
+            <canvas id="typeDonut"></canvas>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+              <div style="font-family:var(--font-head);font-size:22px;font-weight:800;">83</div>
+              <div style="font-size:10px;color:var(--muted);">Total</div>
+            </div>
+          </div>
+          <div style="width:100%">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;">
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;background:var(--teal);border-radius:2px;display:inline-block"></span>Admissão</span>
+              <span style="font-weight:700">31 <span style="color:var(--muted);font-weight:400">(37.3%)</span></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;">
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;background:var(--blue);border-radius:2px;display:inline-block"></span>Periódicos</span>
+              <span style="font-weight:700">46 <span style="color:var(--muted);font-weight:400">(55.4%)</span></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;background:var(--yellow);border-radius:2px;display:inline-block"></span>Ocasionais</span>
+              <span style="font-weight:700">6 <span style="color:var(--muted);font-weight:400">(7.2%)</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Age breakdown + Gender + Complementary -->
+    <div class="section-title">Análise por Grupos</div>
+    <div class="grid-3" style="margin-bottom:16px">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Exames por Faixa Etária</div>
+            <div class="chart-sub">Homens e mulheres por escalão</div>
+          </div>
+          <span class="chart-badge">4 escalões</span>
+        </div>
+        <div class="chart-wrap"><canvas id="ageExamChart"></canvas></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Exames Complementares</div>
+            <div class="chart-sub">1 137 exames · 4 tipos</div>
+          </div>
+          <span class="chart-badge">1 137 total</span>
+        </div>
+        <div style="margin-top:4px">
+          <div class="comp-row">
+            <div>
+              <div style="font-size:13px;font-weight:600">Outros exames</div>
+              <div style="font-size:11px;color:var(--muted)">Sem factor de risco específico</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="comp-bar-wrap"><div class="comp-bar-fill" style="width:84.3%"></div></div>
+              <span style="font-weight:700;font-size:13px;min-width:36px;text-align:right">959</span>
+            </div>
+          </div>
+          <div class="comp-row">
+            <div>
+              <div style="font-size:13px;font-weight:600">Exame oftalmológico</div>
+              <div style="font-size:11px;color:var(--muted)">Risco físico (visão)</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="comp-bar-wrap"><div class="comp-bar-fill" style="width:6.9%;background:var(--blue)"></div></div>
+              <span style="font-weight:700;font-size:13px;min-width:36px;text-align:right">78</span>
+            </div>
+          </div>
+          <div class="comp-row">
+            <div>
+              <div style="font-size:13px;font-weight:600">Hemograma</div>
+              <div style="font-size:11px;color:var(--muted)">Sem factor de risco</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="comp-bar-wrap"><div class="comp-bar-fill" style="width:6.2%;background:#A78BFA"></div></div>
+              <span style="font-weight:700;font-size:13px;min-width:36px;text-align:right">71</span>
+            </div>
+          </div>
+          <div class="comp-row">
+            <div>
+              <div style="font-size:13px;font-weight:600">Rx Tórax</div>
+              <div style="font-size:11px;color:var(--muted)">Sem factor de risco</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="comp-bar-wrap"><div class="comp-bar-fill" style="width:2.6%;background:var(--yellow)"></div></div>
+              <span style="font-weight:700;font-size:13px;min-width:36px;text-align:right">29</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;color:var(--muted)">
+          <span>Total complementares</span>
+          <span style="font-weight:700;color:var(--white)">1 137</span>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Vacinação — Gripe 2024</div>
+            <div class="chart-sub">27 inoculações · Cobertura 31%</div>
+          </div>
+          <span class="chart-badge">Vacina 02</span>
+        </div>
+        <div style="margin-bottom:16px">
+          <canvas id="vaccineChart" style="max-height:150px"></canvas>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+          <div style="background:var(--navy-light);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--blue)">11</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Homens</div>
+            <div style="font-size:10px;color:var(--muted);opacity:0.7">15.7% dos H</div>
+          </div>
+          <div style="background:var(--navy-light);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-family:var(--font-head);font-size:20px;font-weight:800;color:#F472B6">16</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Mulheres</div>
+            <div style="font-size:10px;color:var(--muted);opacity:0.7">94.1% das F</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expiry alerts -->
+    <div class="section-title">Alertas de Vencimento</div>
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="alerts-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div>
+            <div class="chart-title">Exames a Vencer em Breve</div>
+            <div class="chart-sub">Próximos exames periódicos agendados</div>
+          </div>
+          <span class="badge badge-red">8 urgentes</span>
+        </div>
+        <div id="alertsList"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Próximos Exames Agendados</div>
+            <div class="chart-sub">Distribuição por mês — 2025</div>
+          </div>
+          <span class="chart-badge">2025</span>
+        </div>
+        <div class="chart-wrap"><canvas id="nextExamsChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Worker exam table -->
+    <div class="section-title">Registo Individual de Exames</div>
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="search-input" id="searchInput" placeholder="Pesquisar colaborador..." />
+      </div>
+      <select class="filter-select" id="typeFilter">
+        <option value="">Todos os tipos</option>
+        <option value="Admissão">Admissão</option>
+        <option value="Periódico">Periódico</option>
+        <option value="Ocasional">Ocasional</option>
+      </select>
+      <select class="filter-select" id="resultFilter">
+        <option value="">Todos os resultados</option>
+        <option value="Apto">Apto</option>
+        <option value="Apto c/ Restrições">Apto c/ Restrições</option>
+      </select>
+      <span class="filter-count" id="filterCount">83 registos</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Colaborador</th>
+            <th>Tipo de Exame</th>
+            <th>Data Realização</th>
+            <th>Médico</th>
+            <th>Resultado</th>
+            <th>Próximo Exame</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="pagination">
+        <div class="pag-info" id="pagInfo"></div>
+        <div class="pag-btns" id="pagBtns"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+Chart.defaults.color = '#8892A4';
+Chart.defaults.font.family = "'Inter', sans-serif";
+const teal='#00D4B1', blue='#60A5FA', yellow='#FFD166', red='#FF4C6A', purple='#A78BFA', pink='#F472B6';
+const grid='rgba(255,255,255,0.05)';
+
+// ── CHARTS ──────────────────────────────────
+
+// 1. Timeline — monthly breakdown
+new Chart(document.getElementById('timelineChart'),{
+  type:'bar',
+  data:{
+    labels:['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+    datasets:[
+      {label:'Admissão',  data:[4,3,5,2,4,3,3,2,2,1,1,1],backgroundColor:teal,  borderRadius:4,stack:'s'},
+      {label:'Periódico', data:[3,4,4,3,4,5,4,5,4,4,4,2],backgroundColor:blue,  borderRadius:4,stack:'s'},
+      {label:'Ocasional', data:[0,0,1,0,1,0,1,0,1,1,0,1],backgroundColor:yellow,borderRadius:4,stack:'s'},
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{stacked:true,grid:{color:grid},ticks:{font:{size:11}}},
+      y:{stacked:true,grid:{color:grid},ticks:{stepSize:5}}
+    }
+  }
+});
+
+// 2. Type donut
+new Chart(document.getElementById('typeDonut'),{
+  type:'doughnut',
+  data:{
+    labels:['Admissão','Periódicos','Ocasionais'],
+    datasets:[{data:[31,46,6],backgroundColor:[teal,blue,yellow],borderColor:'#0F1729',borderWidth:3,hoverOffset:4}]
+  },
+  options:{cutout:'70%',plugins:{legend:{display:false}},animation:{duration:900}}
+});
+
+// 3. Age exam grouped bar
+new Chart(document.getElementById('ageExamChart'),{
+  type:'bar',
+  data:{
+    labels:['< 18','18–19','20–49','50+'],
+    datasets:[
+      {label:'Homens',  data:[0,0,23,14],backgroundColor:teal,  borderRadius:5},
+      {label:'Mulheres',data:[0,0,27,19],backgroundColor:'#1A5276',borderRadius:5},
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{labels:{boxWidth:10,boxHeight:10,borderRadius:3,font:{size:11},padding:10}}},
+    scales:{x:{grid:{color:grid}},y:{grid:{color:grid},ticks:{stepSize:10}}}
+  }
+});
+
+// 4. Vaccine bar
+new Chart(document.getElementById('vaccineChart'),{
+  type:'bar',
+  data:{
+    labels:['Vacinados','Não Vacinados'],
+    datasets:[
+      {label:'Homens',  data:[11,59],backgroundColor:blue,  borderRadius:5},
+      {label:'Mulheres',data:[16,1], backgroundColor:pink,  borderRadius:5},
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{labels:{boxWidth:10,boxHeight:10,borderRadius:3,font:{size:11},padding:8}}},
+    scales:{x:{grid:{color:grid}},y:{grid:{color:grid},ticks:{stepSize:10},max:70}}
+  }
+});
+
+// 5. Next exams 2025
+new Chart(document.getElementById('nextExamsChart'),{
+  type:'bar',
+  data:{
+    labels:['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+    datasets:[{
+      label:'Exames Agendados',
+      data:[5,3,7,4,6,5,4,3,5,4,3,2],
+      backgroundColor:teal,borderRadius:5,
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{display:false}},
+    scales:{x:{grid:{color:grid},ticks:{font:{size:11}}},y:{grid:{color:grid},ticks:{stepSize:2}}}
+  }
+});
+
+// ── ALERTS ──────────────────────────────────
+const ALERTS=[
+  {name:'Adriano Magalhães',dept:'Obras & Construção',type:'Periódico',daysLeft:8,color:'av-orange'},
+  {name:'Flávio Guedes',    dept:'Obras & Construção',type:'Periódico',daysLeft:12,color:'av-teal'},
+  {name:'Helena Ribeiro',   dept:'Gestão de Projetos',type:'Periódico',daysLeft:19,color:'av-pink'},
+  {name:'Dário Faria',      dept:'Gestão de Projetos',type:'Periódico',daysLeft:23,color:'av-blue'},
+  {name:'Carla Alves',      dept:'Obras & Construção',type:'Admissão',  daysLeft:35,color:'av-purple'},
+  {name:'Octávio Falcão',   dept:'Engenharia Civil',  type:'Periódico',daysLeft:41,color:'av-yellow'},
+  {name:'Sandra Moreira',   dept:'Engenharia Civil',  type:'Periódico',daysLeft:48,color:'av-pink'},
+  {name:'Moisés Barros',    dept:'Gestão de Projetos',type:'Periódico',daysLeft:55,color:'av-teal'},
+];
+const alertsList=document.getElementById('alertsList');
+alertsList.innerHTML=ALERTS.map(a=>{
+  const cls=a.daysLeft<=15?'days-red':a.daysLeft<=30?'days-yellow':'days-green';
+  const initials=a.name.split(' ').map(p=>p[0]).filter((_,i)=>i===0||i===a.name.split(' ').length-1).join('');
+  const dotColor=a.daysLeft<=15?red:a.daysLeft<=30?yellow:teal;
+  return `<div class="alert-item">
+    <div style="width:8px;height:8px;border-radius:50%;background:${dotColor};flex-shrink:0"></div>
+    <div class="emp-avatar ${a.color}" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${initials}</div>
+    <div style="flex:1;min-width:0">
+      <div class="alert-name" style="font-size:12px">${a.name}</div>
+      <div class="alert-meta">${a.dept} · ${a.type}</div>
+    </div>
+    <div class="alert-days ${cls}">${a.daysLeft <= 0 ? 'Vencido' : a.daysLeft + ' dias'}</div>
+  </div>`;
+}).join('');
+
+// ── EXAM TABLE ───────────────────────────────
+const DOCTORS=['Margarida Serra','António Carvalho','Joana Neto de Carvalho','J. Gomes','Jarbas Oliveira'];
+const MONTHS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const AV=['av-teal','av-blue','av-purple','av-orange','av-pink','av-yellow'];
+
+function rnd(a,b){return Math.floor(Math.random()*((b-a)+1))+a;}
+function dateStr(month,day){return `${String(day).padStart(2,'0')} ${MONTHS[month-1]} 2024`;}
+function nextDateStr(month,day){return `${String(day).padStart(2,'0')} ${MONTHS[month-1]} 2025`;}
+
+const WORKERS=[
+  'João Silva','Pedro Oliveira','Miguel Santos','António Costa','Rui Ferreira',
+  'Carlos Rodrigues','Manuel Fernandes','José Carvalho','Paulo Gomes','Luís Martins',
+  'Filipe Sousa','Ricardo Lopes','Nuno Pires','Tiago Ribeiro','André Alves',
+  'Bruno Moreira','Marco Correia','Hugo Melo','Rafael Mendes','Diogo Cardoso',
+  'Rodrigo Marques','Vasco Teixeira','Gonçalo Pereira','Sérgio Castro','Fernando Monteiro',
+  'Ana Silva','Maria Oliveira','Sofia Santos','Catarina Costa','Inês Ferreira','Beatriz Rodrigues',
+  'Eduardo Fonseca','Henrique Araújo','Artur Brito','Francisco Cunha',
+  'Álvaro Pinto','Alexandre Dias','Joaquim Neves','Duarte Freitas','Afonso Vieira',
+  'Bernardo Coelho','Dinis Andrade','Leonel Ramos','Vítor Barros','Mário Pinheiro',
+  'Margarida Fernandes','Joana Carvalho','Rita Gomes',
+  'Cláudio Esteves','Óscar Simões','Sandro Henriques','Hélder Tavares',
+  'Adriano Magalhães','Amílcar Borges','Dário Faria','Flávio Guedes',
+  'Herberto Campos','Ígor Soares','Jânio Nobre','Lúcio Moura',
+  'Helena Ribeiro','Carla Alves','Sandra Moreira',
+];
+
+const DEPTS=[
+  'Engenharia Civil','Engenharia Civil','Gestão de Projetos','Obras & Construção','Engenharia Civil',
+  'Seg. & Higiene','Administração','Engenharia Civil','Gestão de Projetos','Obras & Construção',
+  'Financeiro','Engenharia Civil','Gestão de Projetos','Obras & Construção','Seg. & Higiene',
+  'Administração','Engenharia Civil','Gestão de Projetos','Obras & Construção','Engenharia Civil',
+  'Seg. & Higiene','Financeiro','Engenharia Civil','Gestão de Projetos','Obras & Construção',
+  'Administração','Gestão de Projetos','Engenharia Civil','Seg. & Higiene','Administração','Financeiro',
+  'Engenharia Civil','Obras & Construção','Gestão de Projetos','Engenharia Civil',
+  'Obras & Construção','Engenharia Civil','Seg. & Higiene','Gestão de Projetos','Obras & Construção',
+  'Engenharia Civil','Administração','Obras & Construção','Engenharia Civil','Gestão de Projetos',
+  'Gestão de Projetos','Engenharia Civil','Obras & Construção',
+  'Engenharia Civil','Obras & Construção','Gestão de Projetos','Engenharia Civil',
+  'Obras & Construção','Engenharia Civil','Gestão de Projetos','Obras & Construção',
+  'Seg. & Higiene','Administração','Obras & Construção','Engenharia Civil',
+  'Gestão de Projetos','Obras & Construção','Engenharia Civil',
+];
+
+// Build 83 exam records
+const EXAM_TYPES_POOL = [
+  ...Array(31).fill('Admissão'),
+  ...Array(46).fill('Periódico'),
+  ...Array(6).fill('Ocasional'),
+];
+
+// Assign exam types to workers (some workers have 2 exams)
+const EXTRA = [0,5,10,15,20,25,30]; // workers with 2 exams
+let typeIdx=0;
+const RECORDS=[];
+WORKERS.forEach((name,wi)=>{
+  const hasTwo=EXTRA.includes(wi)&&typeIdx<EXAM_TYPES_POOL.length-1;
+  const count=hasTwo?2:1;
+  for(let e=0;e<count;e++){
+    if(typeIdx>=EXAM_TYPES_POOL.length) return;
+    const type=EXAM_TYPES_POOL[typeIdx++];
+    const month=rnd(1,12);
+    const day=rnd(1,28);
+    const nextMonth=rnd(1,12);
+    const nextDay=rnd(1,28);
+    const result=wi===3?'Apto c/ Restrições':'Apto';
+    RECORDS.push({
+      name,dept:DEPTS[wi]||'Engenharia Civil',type,
+      date:dateStr(month,day),
+      doctor:DOCTORS[wi%DOCTORS.length],
+      result,
+      nextDate:nextDateStr(nextMonth,nextDay),
+      av:AV[wi%AV.length],
+      initials:name.split(' ').filter((_,i,a)=>i===0||i===a.length-1).map(p=>p[0]).join(''),
+    });
+  }
+});
+
+const PER_PAGE=15;
+let currentPage=1;
+let filtered=[...RECORDS];
+
+function renderTable(){
+  const tbody=document.getElementById('tableBody');
+  const start=(currentPage-1)*PER_PAGE;
+  const page=filtered.slice(start,start+PER_PAGE);
+  tbody.innerHTML=page.map(r=>{
+    const typeBadge=r.type==='Admissão'?'badge-teal':r.type==='Periódico'?'badge-blue':'badge-yellow';
+    const resCls=r.result==='Apto'?'result-apto':'';
+    return `<tr>
+      <td><div class="emp-cell">
+        <div class="emp-avatar ${r.av}">${r.initials}</div>
+        <div><div class="emp-name">${r.name}</div><div class="emp-dept">${r.dept}</div></div>
+      </div></td>
+      <td><span class="badge ${typeBadge}">${r.type}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${r.date}</td>
+      <td style="font-size:12px;color:var(--muted)">${r.doctor}</td>
+      <td><span class="${resCls}" style="font-size:12px">${r.result}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${r.nextDate}</td>
+      <td><span class="badge badge-teal" style="font-size:10px">Registado</span></td>
+    </tr>`;
+  }).join('');
+
+  const total=filtered.length;
+  const totalPages=Math.ceil(total/PER_PAGE);
+  document.getElementById('pagInfo').textContent=`Mostrando ${start+1}–${Math.min(start+PER_PAGE,total)} de ${total}`;
+  document.getElementById('filterCount').textContent=`${total} registo${total!==1?'s':''}`;
+
+  const pagBtns=document.getElementById('pagBtns');
+  let btns=`<button class="pag-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>`;
+  for(let p=1;p<=totalPages;p++){
+    btns+=`<button class="pag-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+  }
+  btns+=`<button class="pag-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>`;
+  pagBtns.innerHTML=btns;
+}
+
+function goPage(p){
+  const total=Math.ceil(filtered.length/PER_PAGE);
+  if(p<1||p>total)return;
+  currentPage=p;
+  renderTable();
+}
+
+function applyFilters(){
+  const search=document.getElementById('searchInput').value.toLowerCase();
+  const type=document.getElementById('typeFilter').value;
+  const result=document.getElementById('resultFilter').value;
+  filtered=RECORDS.filter(r=>
+    (!search||r.name.toLowerCase().includes(search)||r.dept.toLowerCase().includes(search))&&
+    (!type||r.type===type)&&
+    (!result||r.result===result)
+  );
+  currentPage=1;
+  renderTable();
+}
+
+['searchInput','typeFilter','resultFilter'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',applyFilters);
+  document.getElementById(id).addEventListener('change',applyFilters);
+});
+
+// Export CSV
+document.getElementById('exportBtn').addEventListener('click',()=>{
+  const header='Nome,Departamento,Tipo,Data,Médico,Resultado,Próximo Exame\n';
+  const rows=RECORDS.map(r=>`"${r.name}","${r.dept}",${r.type},${r.date},"${r.doctor}",${r.result},${r.nextDate}`).join('\n');
+  const blob=new Blob([header+rows],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='exames_saude_QAS_2024.csv';a.click();
+  URL.revokeObjectURL(url);
+});
+
+renderTable();
+</script>
+</body>
+</html>

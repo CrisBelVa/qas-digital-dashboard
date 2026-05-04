@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QAS-Digital | Colaboradores</title>
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #0B1120; --navy-mid: #0F1729; --navy-light: #1A2440; --navy-card: #131e35;
+      --teal: #00D4B1; --teal-dark: #00B89A; --teal-glow: rgba(0,212,177,0.18);
+      --teal-subtle: rgba(0,212,177,0.08); --white: #F0F4FF; --muted: #8892A4;
+      --border: rgba(255,255,255,0.07); --red: #FF4C6A; --yellow: #FFD166;
+      --sidebar-w: 240px; --font-head: 'Bricolage Grotesque', sans-serif; --font-body: 'Inter', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { background: var(--navy); font-family: var(--font-body); color: var(--white); display: flex; overflow: hidden; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--navy-mid); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }
+    .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+    .logo-text { font-family: var(--font-head); font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
+    .logo-text span { color: var(--teal); }
+    .logo-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .sidebar-section { padding: 16px 12px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 600; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; margin: 2px 8px; cursor: pointer; font-size: 13.5px; color: var(--muted); transition: all 0.2s; text-decoration: none; }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .nav-item:hover { background: var(--navy-light); color: var(--white); }
+    .nav-item.active { background: var(--teal-subtle); color: var(--teal); }
+    .nav-item .badge { margin-left: auto; background: var(--teal); color: var(--navy); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+    .sidebar-footer { margin-top: auto; padding: 16px 12px; border-top: 1px solid var(--border); }
+    .user-chip { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; background: var(--navy-light); }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--teal-subtle); border: 2px solid var(--teal); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--teal); flex-shrink: 0; }
+    .user-info .name { font-size: 13px; font-weight: 600; }
+    .user-info .role { font-size: 11px; color: var(--muted); }
+    .logout-btn { background: none; border: none; cursor: pointer; color: var(--muted); margin-left: auto; display: flex; padding: 4px; transition: color 0.2s; }
+    .logout-btn:hover { color: var(--red); }
+    .logout-btn svg { width: 15px; height: 15px; }
+
+    /* ── MAIN ── */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar { padding: 18px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: var(--navy-mid); }
+    .topbar-left h1 { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
+    .topbar-left p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .btn-outline { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 500; color: var(--muted); background: none; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+    .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+    .btn-outline svg { width: 13px; height: 13px; }
+    .btn-teal { background: var(--teal); color: var(--navy); border: none; border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; font-family: var(--font-body); }
+    .btn-teal:hover { background: var(--teal-dark); }
+    .btn-teal svg { width: 13px; height: 13px; }
+
+    .content { flex: 1; overflow-y: auto; padding: 24px 28px 40px; }
+    .content::-webkit-scrollbar { width: 6px; }
+    .content::-webkit-scrollbar-track { background: transparent; }
+    .content::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 3px; }
+
+    /* Stats row */
+    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: var(--navy-card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; display: flex; align-items: center; gap: 12px; transition: border-color 0.2s; }
+    .stat-card:hover { border-color: rgba(0,212,177,0.2); }
+    .stat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .stat-icon svg { width: 16px; height: 16px; }
+    .stat-val { font-family: var(--font-head); font-size: 22px; font-weight: 800; line-height: 1; }
+    .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    /* Filter bar */
+    .filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--muted); pointer-events: none; }
+    .search-input { width: 100%; background: var(--navy-card); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px 9px 36px; font-size: 13px; color: var(--white); font-family: var(--font-body); outline: none; transition: border-color 0.2s; }
+    .search-input::placeholder { color: var(--muted); }
+    .search-input:focus { border-color: var(--teal); }
+    .filter-select { background: var(--navy-card); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13px; color: var(--muted); font-family: var(--font-body); outline: none; cursor: pointer; transition: border-color 0.2s; }
+    .filter-select:focus { border-color: var(--teal); color: var(--white); }
+    .filter-count { font-size: 12px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+
+    /* Table */
+    .table-wrap { background: var(--navy-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); font-weight: 600; text-align: left; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
+    tbody tr.active-row { background: var(--teal-subtle); }
+    td { padding: 11px 16px; font-size: 13px; vertical-align: middle; }
+
+    .emp-cell { display: flex; align-items: center; gap: 10px; }
+    .emp-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .emp-name { font-weight: 600; font-size: 13px; white-space: nowrap; }
+    .emp-id { font-size: 11px; color: var(--muted); }
+
+    .dept-tag { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; background: rgba(255,255,255,0.05); color: var(--muted); white-space: nowrap; }
+
+    .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .status-badge .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .s-completed { background: rgba(0,212,177,0.1); color: var(--teal); }
+    .s-in_progress { background: rgba(59,130,246,0.1); color: #60A5FA; }
+    .s-overdue { background: rgba(255,76,106,0.1); color: var(--red); }
+
+    .prog-mini { display: flex; align-items: center; gap: 8px; }
+    .prog-mini-bar { width: 72px; height: 5px; background: var(--navy-light); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+    .prog-mini-fill { height: 100%; border-radius: 3px; }
+    .prog-mini-val { font-size: 12px; font-weight: 600; min-width: 32px; }
+
+    .grade-cell { font-weight: 700; font-size: 13px; }
+    .grade-na { color: var(--muted); font-weight: 400; }
+
+    .gender-icon { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; }
+
+    /* Pagination */
+    .pagination { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-top: 1px solid var(--border); background: rgba(255,255,255,0.01); }
+    .pag-info { font-size: 12px; color: var(--muted); }
+    .pag-btns { display: flex; gap: 6px; }
+    .pag-btn { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; transition: all 0.2s; }
+    .pag-btn:hover { border-color: var(--teal); color: var(--teal); }
+    .pag-btn.active { background: var(--teal); color: var(--navy); border-color: var(--teal); }
+    .pag-btn:disabled { opacity: 0.3; cursor: default; }
+    .pag-btn svg { width: 12px; height: 12px; }
+
+    /* ── DETAIL PANEL ── */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .overlay.show { opacity: 1; pointer-events: all; }
+
+    .detail-panel { position: fixed; top: 0; right: 0; height: 100vh; width: 460px; background: var(--navy-mid); border-left: 1px solid var(--border); z-index: 50; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; overflow: hidden; }
+    .detail-panel.show { transform: translateX(0); }
+
+    .panel-topbar { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .panel-title { font-family: var(--font-head); font-size: 14px; font-weight: 700; color: var(--muted); }
+    .panel-close { background: none; border: none; cursor: pointer; color: var(--muted); display: flex; padding: 6px; border-radius: 8px; transition: all 0.2s; }
+    .panel-close:hover { background: var(--navy-light); color: var(--white); }
+    .panel-close svg { width: 16px; height: 16px; }
+
+    .panel-body { flex: 1; overflow-y: auto; padding: 20px; }
+    .panel-body::-webkit-scrollbar { width: 4px; }
+    .panel-body::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 2px; }
+
+    /* Learning dashboard inside panel */
+    .ld-header { background: var(--navy); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    .ld-title { font-family: var(--font-head); font-size: 14px; font-weight: 800; margin-bottom: 2px; }
+    .ld-sub { font-size: 11px; color: var(--muted); }
+    .ld-meta { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .ld-role-tag { font-size: 11px; color: var(--muted); background: var(--navy-light); padding: 2px 8px; border-radius: 4px; }
+
+    .ld-alert { background: rgba(255,209,102,0.08); border: 1px solid rgba(255,209,102,0.2); border-radius: 10px; padding: 10px 13px; margin-bottom: 14px; display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--yellow); }
+    .ld-alert svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
+    .ld-alert-ok { background: rgba(0,212,177,0.06); border: 1px solid rgba(0,212,177,0.15); color: var(--teal); }
+
+    .ld-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+    .ld-stat { background: var(--navy); border: 1px solid var(--border); border-radius: 10px; padding: 10px; text-align: center; }
+    .ld-stat-val { font-family: var(--font-head); font-size: 18px; font-weight: 800; line-height: 1; }
+    .ld-stat-lbl { font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .ld-stat-sub { font-size: 9px; color: var(--muted); margin-top: 2px; opacity: 0.7; }
+    .ld-stat-ok { background: rgba(0,212,177,0.06); border: 1px solid rgba(0,212,177,0.15); }
+    .ld-stat-ok .ld-stat-sub { color: var(--teal); opacity: 1; }
+    .ld-stat-warn .ld-stat-val { color: var(--red); }
+    .ld-stat-warn .ld-stat-sub { color: var(--red); opacity: 1; }
+
+    .ld-section-title { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+
+    .ld-module { background: var(--navy); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
+    .ld-module-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; }
+    .ld-module-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-right: 10px; }
+    .ld-module-info { flex: 1; }
+    .ld-module-name { font-size: 13px; font-weight: 600; }
+    .ld-module-desc { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .ld-module-prog { width: 100%; height: 3px; background: var(--navy-light); border-radius: 2px; margin-top: 5px; overflow: hidden; }
+    .ld-module-prog-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+    .mod-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
+    .mod-completed { background: rgba(0,212,177,0.1); color: var(--teal); }
+    .mod-inprog { background: rgba(59,130,246,0.1); color: #60A5FA; }
+    .mod-overdue { background: rgba(255,76,106,0.1); color: var(--red); }
+    .mod-locked { background: rgba(255,255,255,0.05); color: var(--muted); }
+
+    .ld-lessons { padding: 0 14px 12px; border-top: 1px solid var(--border); }
+    .ld-lesson { display: flex; align-items: center; gap: 8px; padding: 7px 0; font-size: 12px; }
+    .ld-lesson:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .lesson-dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--muted); flex-shrink: 0; }
+    .lesson-dot.done { background: var(--teal); border-color: var(--teal); }
+    .lesson-dot.current { background: transparent; border-color: #60A5FA; box-shadow: 0 0 0 2px rgba(96,165,250,0.2); }
+    .lesson-dot.overdue-dot { border-color: var(--red); }
+    .lesson-name { flex: 1; color: var(--muted); }
+    .lesson-name.done { color: var(--white); }
+    .lesson-name.current { color: #60A5FA; }
+    .lesson-duration { font-size: 11px; color: var(--muted); }
+
+    .ld-certs { background: var(--navy); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 8px; }
+    .cert-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+    .cert-item:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .cert-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; }
+    .cert-info { flex: 1; }
+    .cert-name { font-size: 12px; font-weight: 600; }
+    .cert-status { font-size: 11px; color: var(--muted); }
+    .cert-tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+    .cert-pdf { background: rgba(0,212,177,0.1); color: var(--teal); }
+    .cert-pending { background: rgba(255,255,255,0.05); color: var(--muted); }
+    .cert-locked { background: rgba(255,255,255,0.03); color: var(--muted); opacity: 0.5; }
+
+    .panel-deadline { display: flex; align-items: center; justify-content: space-between; background: var(--navy); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-top: 8px; }
+    .deadline-txt { font-size: 12px; color: var(--muted); }
+    .deadline-txt strong { color: var(--white); }
+    .btn-continue { background: var(--teal); color: var(--navy); border: none; border-radius: 8px; padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--font-body); }
+
+    /* Color avatars */
+    .av-teal { background: rgba(0,212,177,0.15); color: var(--teal); }
+    .av-blue { background: rgba(96,165,250,0.15); color: #60A5FA; }
+    .av-purple { background: rgba(167,139,250,0.15); color: #A78BFA; }
+    .av-orange { background: rgba(251,146,60,0.15); color: #FB923C; }
+    .av-pink { background: rgba(244,114,182,0.15); color: #F472B6; }
+    .av-yellow { background: rgba(250,204,21,0.15); color: #FBBF24; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">QAS<span>-Digital</span></div>
+    <div class="logo-sub">Gestão Integrada · SST</div>
+  </div>
+  <div class="sidebar-section">Principal</div>
+  <a class="nav-item" href="dashboard.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </a>
+  <a class="nav-item active" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Colaboradores
+    <span class="badge">87</span>
+  </a>
+  <a class="nav-item" href="exames.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    Exames de Saúde
+  </a>
+  <a class="nav-item" href="acidentes.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Acidentes
+  </a>
+  <a class="nav-item" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    Formação
+  </a>
+  <div class="sidebar-section">Gestão</div>
+  <a class="nav-item" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    Relatórios
+  </a>
+  <a class="nav-item" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg>
+    Configurações
+  </a>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="avatar">A</div>
+      <div class="user-info"><div class="name">Admin</div><div class="role">Administrador</div></div>
+      <button class="logout-btn" onclick="window.location.href='login.html'" title="Sair">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Colaboradores</h1>
+      <p>Gestão de formação e saúde ocupacional · Módulo OHSM · ISO 45001</p>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-outline" id="exportBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar CSV
+      </button>
+      <button class="btn-teal">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Enviar Lembrete
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:var(--teal-subtle);color:var(--teal)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div><div class="stat-val">87</div><div class="stat-lbl">Total inscritos</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(0,212,177,0.1);color:var(--teal)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div><div class="stat-val" style="color:var(--teal)">31</div><div class="stat-lbl">Concluídos</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(96,165,250,0.1);color:#60A5FA">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div><div class="stat-val" style="color:#60A5FA">40</div><div class="stat-lbl">Em progresso</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(255,76,106,0.1);color:var(--red)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div><div class="stat-val" style="color:var(--red)">16</div><div class="stat-lbl">Em atraso</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(250,204,21,0.1);color:#FBBF24">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div><div class="stat-val" style="color:#FBBF24">85%</div><div class="stat-lbl">Nota média</div></div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="search-input" id="searchInput" placeholder="Pesquisar por nome ou departamento..." />
+      </div>
+      <select class="filter-select" id="statusFilter">
+        <option value="">Todos os estados</option>
+        <option value="C">Concluído</option>
+        <option value="P">Em progresso</option>
+        <option value="O">Em atraso</option>
+      </select>
+      <select class="filter-select" id="deptFilter">
+        <option value="">Todos os departamentos</option>
+        <option>Engenharia Civil</option>
+        <option>Gestão de Projetos</option>
+        <option>Obras &amp; Construção</option>
+        <option>Seg. &amp; Higiene</option>
+        <option>Administração</option>
+        <option>Financeiro</option>
+      </select>
+      <select class="filter-select" id="genderFilter">
+        <option value="">Todos os géneros</option>
+        <option value="M">Masculino (70)</option>
+        <option value="F">Feminino (17)</option>
+      </select>
+      <span class="filter-count" id="filterCount">87 colaboradores</span>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th>Colaborador</th>
+            <th>Departamento</th>
+            <th>Género</th>
+            <th>Estado</th>
+            <th>Módulo Atual</th>
+            <th>Progresso</th>
+            <th>Nota</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="pagination">
+        <div class="pag-info" id="pagInfo"></div>
+        <div class="pag-btns" id="pagBtns"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+
+<!-- Detail Panel -->
+<div class="detail-panel" id="detailPanel">
+  <div class="panel-topbar">
+    <span class="panel-title">Ficha do Colaborador</span>
+    <button class="panel-close" onclick="closePanel()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+</div>
+
+<script>
+// ──────────────────────────────────────────
+// DATA: 87 employees [name, gender, dept, status, progress, grade]
+// Status: C=completed, P=in_progress, O=overdue
+// Gender: 70M (80.5%), 17F (19.5%)
+// Statuses: 31C, 40P, 16O
+// ──────────────────────────────────────────
+const RAW = [
+  // COMPLETED — 25 Males
+  ['João Silva','M','Engenharia Civil','C',100,92],
+  ['Pedro Oliveira','M','Engenharia Civil','C',100,88],
+  ['Miguel Santos','M','Gestão de Projetos','C',100,95],
+  ['António Costa','M','Obras & Construção','C',100,87],
+  ['Rui Ferreira','M','Engenharia Civil','C',100,91],
+  ['Carlos Rodrigues','M','Seg. & Higiene','C',100,84],
+  ['Manuel Fernandes','M','Administração','C',100,89],
+  ['José Carvalho','M','Engenharia Civil','C',100,93],
+  ['Paulo Gomes','M','Gestão de Projetos','C',100,86],
+  ['Luís Martins','M','Obras & Construção','C',100,90],
+  ['Filipe Sousa','M','Financeiro','C',100,85],
+  ['Ricardo Lopes','M','Engenharia Civil','C',100,94],
+  ['Nuno Pires','M','Gestão de Projetos','C',100,88],
+  ['Tiago Ribeiro','M','Obras & Construção','C',100,92],
+  ['André Alves','M','Seg. & Higiene','C',100,87],
+  ['Bruno Moreira','M','Administração','C',100,83],
+  ['Marco Correia','M','Engenharia Civil','C',100,91],
+  ['Hugo Melo','M','Gestão de Projetos','C',100,86],
+  ['Rafael Mendes','M','Obras & Construção','C',100,93],
+  ['Diogo Cardoso','M','Engenharia Civil','C',100,88],
+  ['Rodrigo Marques','M','Seg. & Higiene','C',100,85],
+  ['Vasco Teixeira','M','Financeiro','C',100,90],
+  ['Gonçalo Pereira','M','Engenharia Civil','C',100,87],
+  ['Sérgio Castro','M','Gestão de Projetos','C',100,92],
+  ['Fernando Monteiro','M','Obras & Construção','C',100,89],
+  // COMPLETED — 6 Females
+  ['Ana Silva','F','Administração','C',100,94],
+  ['Maria Oliveira','F','Gestão de Projetos','C',100,91],
+  ['Sofia Santos','F','Engenharia Civil','C',100,88],
+  ['Catarina Costa','F','Seg. & Higiene','C',100,95],
+  ['Inês Ferreira','F','Administração','C',100,87],
+  ['Beatriz Rodrigues','F','Financeiro','C',100,90],
+  // IN PROGRESS — Module 1 (4 Males)
+  ['Eduardo Fonseca','M','Engenharia Civil','P',18,0],
+  ['Henrique Araújo','M','Obras & Construção','P',12,0],
+  ['Artur Brito','M','Gestão de Projetos','P',22,0],
+  ['Francisco Cunha','M','Engenharia Civil','P',15,0],
+  // IN PROGRESS — Module 2 (14 Males)
+  ['Álvaro Pinto','M','Obras & Construção','P',42,0],
+  ['Alexandre Dias','M','Engenharia Civil','P',38,0],
+  ['Joaquim Neves','M','Seg. & Higiene','P',47,0],
+  ['Duarte Freitas','M','Gestão de Projetos','P',35,0],
+  ['Afonso Vieira','M','Obras & Construção','P',44,0],
+  ['Bernardo Coelho','M','Engenharia Civil','P',31,0],
+  ['Dinis Andrade','M','Administração','P',49,0],
+  ['Leonel Ramos','M','Obras & Construção','P',37,0],
+  ['Vítor Barros','M','Engenharia Civil','P',43,0],
+  ['Mário Pinheiro','M','Gestão de Projetos','P',40,0],
+  ['Tomás Sequeira','M','Obras & Construção','P',33,0],
+  ['Renato Machado','M','Engenharia Civil','P',46,0],
+  ['Leandro Azevedo','M','Seg. & Higiene','P',39,0],
+  ['Fábio Nascimento','M','Administração','P',48,0],
+  // IN PROGRESS — Module 3 (15 Males)
+  ['Cláudio Esteves','M','Engenharia Civil','P',68,0],
+  ['Óscar Simões','M','Obras & Construção','P',72,0],
+  ['Sandro Henriques','M','Gestão de Projetos','P',58,0],
+  ['Hélder Tavares','M','Engenharia Civil','P',63,0],
+  ['Adão Matos','M','Obras & Construção','P',71,0],
+  ['Cristiano Figueiredo','M','Engenharia Civil','P',55,0],
+  ['Emanuel Abreu','M','Gestão de Projetos','P',69,0],
+  ['Érico Paiva','M','Seg. & Higiene','P',60,0],
+  ['Frederico Queirós','M','Obras & Construção','P',74,0],
+  ['Gastão Serrano','M','Engenharia Civil','P',57,0],
+  ['Ilídio Baptista','M','Administração','P',66,0],
+  ['Júlio Guerreiro','M','Obras & Construção','P',70,0],
+  ['Marcelo Valente','M','Engenharia Civil','P',53,0],
+  ['Nelson Domingues','M','Financeiro','P',64,0],
+  ['Orlando Antunes','M','Gestão de Projetos','P',61,0],
+  // IN PROGRESS — 7 Females
+  ['Margarida Fernandes','F','Gestão de Projetos','P',36,0],
+  ['Joana Carvalho','F','Engenharia Civil','P',43,0],
+  ['Rita Gomes','F','Obras & Construção','P',48,0],
+  ['Filipa Martins','F','Seg. & Higiene','P',67,0],
+  ['Cristina Sousa','F','Administração','P',59,0],
+  ['Susana Lopes','F','Engenharia Civil','P',73,0],
+  ['Patrícia Pires','F','Obras & Construção','P',55,0],
+  // OVERDUE — 12 Males (all on module 3)
+  ['Adriano Magalhães','M','Obras & Construção','O',52,0],
+  ['Amílcar Borges','M','Engenharia Civil','O',55,0],
+  ['Dário Faria','M','Gestão de Projetos','O',58,0],
+  ['Flávio Guedes','M','Obras & Construção','O',53,0],
+  ['Gerson Leite','M','Engenharia Civil','O',62,0],
+  ['Herberto Campos','M','Seg. & Higiene','O',56,0],
+  ['Ígor Soares','M','Administração','O',54,0],
+  ['Jânio Nobre','M','Obras & Construção','O',60,0],
+  ['Lúcio Moura','M','Engenharia Civil','O',57,0],
+  ['Moisés Barros','M','Gestão de Projetos','O',51,0],
+  ['Norberto Antunes','M','Obras & Construção','O',63,0],
+  ['Octávio Falcão','M','Engenharia Civil','O',52,0],
+  // OVERDUE — 4 Females
+  ['Helena Ribeiro','F','Gestão de Projetos','O',55,0],
+  ['Carla Alves','F','Obras & Construção','O',58,0],
+  ['Sandra Moreira','F','Engenharia Civil','O',61,0],
+  ['Marta Correia','F','Administração','O',53,0],
+];
+
+const ROLES = {
+  'Engenharia Civil':    ['Engenheiro Civil','Técnico de Estruturas','Projectista','Eng. Sénior'],
+  'Gestão de Projetos':  ['Gestor de Projecto','Coordenador','Director de Projecto','PMO'],
+  'Obras & Construção':  ['Encarregado de Obra','Técnico de Obras','Chefe de Equipa','Oficial Especializado'],
+  'Seg. & Higiene':      ['Técnico SST','Inspector de Segurança','Responsável HSE'],
+  'Administração':       ['Assistente Administrativo','Gestor RH','Secretário Executivo'],
+  'Financeiro':          ['Contabilista','Analista Financeiro','Controller'],
+};
+
+const AV_COLORS = ['av-teal','av-blue','av-purple','av-orange','av-pink','av-yellow'];
+
+const EMPLOYEES = RAW.map(([name, gender, dept, status, progress, grade], i) => {
+  const parts = name.split(' ');
+  const initials = parts[0][0] + (parts[parts.length-1][0] || '');
+  const roles = ROLES[dept] || ['Colaborador'];
+  const role = roles[i % roles.length];
+  const avColor = AV_COLORS[i % AV_COLORS.length];
+  const id = String(i + 1).padStart(3, '0');
+  return { id, name, initials, gender, dept, status, progress, grade, role, avColor };
+});
+
+// ──────────────────────────────────────────
+// TABLE RENDERING
+// ──────────────────────────────────────────
+const PER_PAGE = 20;
+let currentPage = 1;
+let filtered = [...EMPLOYEES];
+
+function getModuleLabel(emp) {
+  if (emp.status === 'C') return 'Knowledge Assessment';
+  if (emp.status === 'O') return 'TS — Padrões Técnicos';
+  if (emp.progress < 25)  return 'Introdução OHSM';
+  if (emp.progress < 50)  return 'ISO 45001 OHS Mgmt';
+  return 'TS — Padrões Técnicos';
+}
+
+function getProgColor(status) {
+  if (status === 'C') return 'var(--teal)';
+  if (status === 'O') return 'var(--red)';
+  return '#60A5FA';
+}
+
+function statusBadge(status) {
+  const map = { C: ['s-completed','Concluído'], P: ['s-in_progress','Em Progresso'], O: ['s-overdue','Em Atraso'] };
+  const [cls, lbl] = map[status];
+  return `<span class="status-badge ${cls}"><span class="dot"></span>${lbl}</span>`;
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  const start = (currentPage - 1) * PER_PAGE;
+  const page = filtered.slice(start, start + PER_PAGE);
+
+  tbody.innerHTML = page.map((emp, i) => {
+    const globalIdx = start + i;
+    const progColor = getProgColor(emp.status);
+    const gradeCell = emp.status === 'C'
+      ? `<span class="grade-cell" style="color:${emp.grade >= 90 ? 'var(--teal)' : 'var(--white)'}">${emp.grade}%</span>`
+      : `<span class="grade-na">—</span>`;
+    const genderIcon = emp.gender === 'M'
+      ? `<span class="gender-icon" style="color:#60A5FA">♂ Masculino</span>`
+      : `<span class="gender-icon" style="color:#F472B6">♀ Feminino</span>`;
+    return `
+      <tr onclick="openPanel(${globalIdx})" data-idx="${globalIdx}">
+        <td style="color:var(--muted);font-size:12px">${emp.id}</td>
+        <td>
+          <div class="emp-cell">
+            <div class="emp-avatar ${emp.avColor}">${emp.initials}</div>
+            <div>
+              <div class="emp-name">${emp.name}</div>
+              <div class="emp-id">${emp.role}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="dept-tag">${emp.dept}</span></td>
+        <td>${genderIcon}</td>
+        <td>${statusBadge(emp.status)}</td>
+        <td style="font-size:12px;color:var(--muted);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${getModuleLabel(emp)}</td>
+        <td>
+          <div class="prog-mini">
+            <div class="prog-mini-bar"><div class="prog-mini-fill" style="width:${emp.progress}%;background:${progColor}"></div></div>
+            <span class="prog-mini-val" style="color:${progColor}">${emp.progress}%</span>
+          </div>
+        </td>
+        <td>${gradeCell}</td>
+      </tr>`;
+  }).join('');
+
+  // Pagination
+  const total = filtered.length;
+  const totalPages = Math.ceil(total / PER_PAGE);
+  document.getElementById('pagInfo').textContent = `Mostrando ${start + 1}–${Math.min(start + PER_PAGE, total)} de ${total}`;
+  document.getElementById('filterCount').textContent = `${total} colaborador${total !== 1 ? 'es' : ''}`;
+
+  const pagBtns = document.getElementById('pagBtns');
+  let btns = `<button class="pag-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>`;
+  for (let p = 1; p <= totalPages; p++) {
+    btns += `<button class="pag-btn ${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
+  }
+  btns += `<button class="pag-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>`;
+  pagBtns.innerHTML = btns;
+}
+
+function goPage(p) {
+  const total = Math.ceil(filtered.length / PER_PAGE);
+  if (p < 1 || p > total) return;
+  currentPage = p;
+  renderTable();
+}
+
+function applyFilters() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('statusFilter').value;
+  const dept   = document.getElementById('deptFilter').value;
+  const gender = document.getElementById('genderFilter').value;
+  filtered = EMPLOYEES.filter(e =>
+    (!search || e.name.toLowerCase().includes(search) || e.dept.toLowerCase().includes(search)) &&
+    (!status || e.status === status) &&
+    (!dept   || e.dept === dept) &&
+    (!gender || e.gender === gender)
+  );
+  currentPage = 1;
+  renderTable();
+}
+
+['searchInput','statusFilter','deptFilter','genderFilter'].forEach(id => {
+  document.getElementById(id).addEventListener('input', applyFilters);
+  document.getElementById(id).addEventListener('change', applyFilters);
+});
+
+// ──────────────────────────────────────────
+// DETAIL PANEL
+// ──────────────────────────────────────────
+function getLearningData(emp) {
+  // Determine module states and lesson completion
+  const p = emp.progress;
+  const s = emp.status;
+
+  // Overall lesson count (6 total to match screenshot pattern)
+  let lessonsCompleted, lessonsTotal = 6, overdueLessons = 0;
+  if (s === 'C') { lessonsCompleted = 6; }
+  else if (s === 'O') { lessonsCompleted = 4; overdueLessons = 2; }
+  else if (p < 25)  { lessonsCompleted = Math.max(1, Math.round(p / 25 * 2)); }
+  else if (p < 50)  { lessonsCompleted = 2 + Math.round((p - 25) / 25 * 2); }
+  else              { lessonsCompleted = 4 + Math.round((p - 50) / 25); }
+
+  // Module progress within current module
+  const modProg = s === 'C' ? 100
+    : s === 'O' ? Math.round((p - 50) / 25 * 100)
+    : p < 25 ? Math.round(p / 25 * 100)
+    : p < 50 ? Math.round((p - 25) / 25 * 100)
+    : Math.round((p - 50) / 25 * 100);
+
+  // Modules
+  const modules = [
+    {
+      num: 1, name: 'Introdução OHSM',
+      desc: 'Occupational Health & Safety Management',
+      state: s === 'C' || p >= 25 ? 'completed' : 'in_progress',
+      progress: s === 'C' || p >= 25 ? 100 : modProg,
+      lessons: [
+        { name: '1.1 Comprehensive Safety Solutions', min: 17, done: p >= 25 || s === 'C', current: p < 25 && p >= 5 },
+        { name: '1.2 Hazard Identification', min: 12, done: p >= 25 || s === 'C', current: p < 10 && p >= 3 },
+        { name: '1.3 Prevention Programs', min: 14, done: p >= 25 || s === 'C', current: false },
+        { name: '1.4 Incident Management', min: 11, done: p >= 25 || s === 'C', current: false },
+        { name: '1.5 Performance Metrics', min: 9, done: p >= 25 || s === 'C', current: false },
+      ]
+    },
+    {
+      num: 2, name: 'ISO 45001 OHS Management',
+      desc: 'Gestão de Segurança e Saúde Ocupacional',
+      state: s === 'C' || p >= 50 ? 'completed' : p >= 25 ? 'in_progress' : 'locked',
+      progress: s === 'C' || p >= 50 ? 100 : p >= 25 ? modProg : 0,
+      lessons: [
+        { name: '2.1 Fundamentals of ISO 45001', min: 17, done: p >= 50 || s === 'C', current: p >= 25 && p < 32 },
+        { name: '2.2 Context of the Organisation', min: 13, done: p >= 50 || s === 'C', current: p >= 32 && p < 40 },
+        { name: '2.3 Leadership & Worker Participation', min: 13, done: p >= 50 || s === 'C', current: p >= 40 && p < 48 },
+        { name: '2.4 Planning & Risk Assessment', min: 18, done: p >= 50 || s === 'C', current: p >= 48 && p < 50 },
+      ]
+    },
+    {
+      num: 3, name: 'TS — Padrões Técnicos',
+      desc: 'Technical Standards & Compliance',
+      state: s === 'C' ? 'completed' : s === 'O' ? 'overdue' : p >= 50 ? 'in_progress' : 'locked',
+      progress: s === 'C' ? 100 : p >= 50 ? modProg : 0,
+      lessons: [
+        { name: '3.1 Legal Requirements Portugal', min: 20, done: s === 'C', current: p >= 50 && p < 65, overdue: s === 'O' },
+        { name: '3.2 GRI 403 & CSRD Compliance', min: 22, done: s === 'C', current: p >= 65 && p < 75, overdue: s === 'O' },
+      ]
+    },
+    {
+      num: 4, name: 'Knowledge Assessment',
+      desc: 'Quiz final e certificação',
+      state: s === 'C' ? 'completed' : 'locked',
+      progress: s === 'C' ? 100 : 0,
+      lessons: [
+        { name: 'Quiz Final — 20 questões', min: 30, done: s === 'C', current: false },
+        { name: 'Certificação ISO 45001 Awareness', min: null, done: s === 'C', current: false },
+      ]
+    }
+  ];
+
+  return { lessonsCompleted, lessonsTotal, overdueLessons, modules };
+}
+
+function openPanel(idx) {
+  const emp = filtered[idx];
+  const ld = getLearningData(emp);
+
+  // Highlight row
+  document.querySelectorAll('tbody tr').forEach(r => r.classList.remove('active-row'));
+  document.querySelector(`tbody tr[data-idx="${idx}"]`)?.classList.add('active-row');
+
+  const isOverdue = emp.status === 'O';
+  const isDone    = emp.status === 'C';
+  const genderLabel = emp.gender === 'M' ? 'Masculino' : 'Feminino';
+  const genderColor = emp.gender === 'M' ? '#60A5FA' : '#F472B6';
+
+  const alertHtml = isOverdue
+    ? `<div class="ld-alert"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Prazo ultrapassado — ${emp.name.split(' ')[0]} tem ${ld.overdueLessons} lições em atraso e 1 avaliação por concluir. <strong style="margin-left:4px;cursor:pointer;text-decoration:underline">Enviar lembrete ↗</strong></div>`
+    : isDone
+    ? `<div class="ld-alert ld-alert-ok"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Formação concluída com sucesso! Nota final: <strong style="margin-left:4px">${emp.grade}%</strong> · Aprovado</div>`
+    : '';
+
+  const moduleHtml = ld.modules.map(mod => {
+    const stateClass = { completed: 'mod-completed', in_progress: 'mod-inprog', overdue: 'mod-overdue', locked: 'mod-locked' }[mod.state];
+    const stateLabel = { completed: 'Concluído', in_progress: 'Em Progresso', overdue: 'Em Atraso', locked: 'Bloqueado' }[mod.state];
+    const numStyle = mod.state === 'completed' ? 'background:var(--teal);color:var(--navy)'
+      : mod.state === 'in_progress' ? 'background:rgba(96,165,250,0.2);color:#60A5FA'
+      : mod.state === 'overdue' ? 'background:rgba(255,76,106,0.2);color:var(--red)'
+      : 'background:var(--navy-light);color:var(--muted)';
+    const numIcon = mod.state === 'completed' ? '✓' : mod.state === 'locked' ? '🔒' : mod.num;
+
+    const lessonsHtml = mod.lessons.map(l => {
+      const dotClass = l.done ? 'done' : l.overdue ? 'overdue-dot' : l.current ? 'current' : '';
+      const nameClass = l.done ? 'done' : l.current ? 'current' : '';
+      const dur = l.min ? `${l.min} min` : '—';
+      return `<div class="ld-lesson">
+        <div class="lesson-dot ${dotClass}"></div>
+        <span class="lesson-name ${nameClass}">${l.name}</span>
+        <span class="lesson-duration">${dur}</span>
+      </div>`;
+    }).join('');
+
+    return `<div class="ld-module">
+      <div class="ld-module-header">
+        <div class="ld-module-num" style="${numStyle}">${numIcon}</div>
+        <div class="ld-module-info">
+          <div class="ld-module-name">${mod.name}</div>
+          <div class="ld-module-desc">${mod.desc}</div>
+          ${mod.state !== 'locked' ? `<div class="ld-module-prog"><div class="ld-module-prog-fill" style="width:${mod.progress}%;background:${mod.state === 'completed' ? 'var(--teal)' : mod.state === 'overdue' ? 'var(--red)' : '#60A5FA'}"></div></div>` : ''}
+        </div>
+        <span class="mod-badge ${stateClass}" style="margin-left:10px">${stateLabel}</span>
+      </div>
+      ${mod.state !== 'locked' ? `<div class="ld-lessons">${lessonsHtml}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  const certHtml = `
+    <div class="ld-certs">
+      <div class="ld-section-title" style="margin-bottom:12px">Certificados e Conquistas</div>
+      <div class="cert-item">
+        <div class="cert-icon" style="background:${isDone || emp.progress >= 25 ? 'rgba(0,212,177,0.1)' : 'var(--navy-light)'}">${isDone || emp.progress >= 25 ? '🎓' : '🔒'}</div>
+        <div class="cert-info">
+          <div class="cert-name">OHSM Introduction</div>
+          <div class="cert-status">${isDone || emp.progress >= 25 ? 'Concluído em 20 Fev 2026' : 'Não concluído'}</div>
+        </div>
+        <span class="cert-tag ${isDone || emp.progress >= 25 ? 'cert-pdf' : 'cert-locked'}">${isDone || emp.progress >= 25 ? 'PDF' : 'Bloqueado'}</span>
+      </div>
+      <div class="cert-item">
+        <div class="cert-icon" style="background:${isDone ? 'rgba(0,212,177,0.1)' : 'var(--navy-light)'}">${isDone ? '🏆' : '⏳'}</div>
+        <div class="cert-info">
+          <div class="cert-name">ISO 45001 Awareness</div>
+          <div class="cert-status">${isDone ? 'Obtido' : 'Pendente — complete o módulo 2'}</div>
+        </div>
+        <span class="cert-tag ${isDone ? 'cert-pdf' : 'cert-pending'}">${isDone ? 'PDF' : 'Pendente'}</span>
+      </div>
+      <div class="cert-item" style="opacity:${isDone ? 1 : 0.5}">
+        <div class="cert-icon" style="background:var(--navy-light)">🔒</div>
+        <div class="cert-info">
+          <div class="cert-name">GRI 403 Compliance</div>
+          <div class="cert-status">${isDone ? 'Obtido' : 'Bloqueado'}</div>
+        </div>
+        <span class="cert-tag ${isDone ? 'cert-pdf' : 'cert-locked'}">${isDone ? 'PDF' : 'Bloqueado'}</span>
+      </div>
+    </div>`;
+
+  document.getElementById('panelBody').innerHTML = `
+    <div class="ld-header">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div class="emp-avatar ${emp.avColor}" style="width:44px;height:44px;border-radius:50%;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center">${emp.initials}</div>
+        <div>
+          <div style="font-family:var(--font-head);font-size:16px;font-weight:800">${emp.name}</div>
+          <div style="font-size:12px;color:var(--muted)">${emp.role} · <span style="color:${genderColor}">${genderLabel}</span></div>
+        </div>
+      </div>
+      <div class="ld-title">Learning Dashboard — OHSM Training</div>
+      <div class="ld-sub">Módulo: Occupational Health & Safety Management · ISO 45001</div>
+      <div class="ld-meta">
+        <span class="ld-role-tag">${emp.dept}</span>
+        <span class="ld-role-tag">ID: ${emp.id}</span>
+      </div>
+    </div>
+    ${alertHtml}
+    <div class="ld-stats">
+      <div class="ld-stat ${isDone ? 'ld-stat-ok' : ''}">
+        <div class="ld-stat-val" style="color:${isDone ? 'var(--teal)' : isOverdue ? 'var(--red)' : '#60A5FA'}">${emp.progress}%</div>
+        <div class="ld-stat-lbl">Progresso</div>
+        <div class="ld-stat-sub">${isDone ? 'Concluído' : isOverdue ? 'Em atraso' : 'Em curso'}</div>
+      </div>
+      <div class="ld-stat">
+        <div class="ld-stat-val">${ld.lessonsCompleted}/${ld.lessonsTotal}</div>
+        <div class="ld-stat-lbl">Lições</div>
+        <div class="ld-stat-sub">${ld.lessonsTotal - ld.lessonsCompleted} pendentes</div>
+      </div>
+      <div class="ld-stat ${isOverdue ? 'ld-stat-warn' : ''}">
+        <div class="ld-stat-val">${ld.overdueLessons}</div>
+        <div class="ld-stat-lbl">Em atraso</div>
+        <div class="ld-stat-sub">${isOverdue ? 'Prazo excedido' : 'Dentro do prazo'}</div>
+      </div>
+      <div class="ld-stat ${isDone ? 'ld-stat-ok' : ''}">
+        <div class="ld-stat-val">${isDone ? emp.grade + '%' : '—'}</div>
+        <div class="ld-stat-lbl">Nota</div>
+        <div class="ld-stat-sub">${isDone ? 'Aprovado' : 'Pendente'}</div>
+      </div>
+    </div>
+    <div class="ld-section-title">Percurso de Aprendizagem</div>
+    ${moduleHtml}
+    ${certHtml}
+    <div class="panel-deadline">
+      <div class="deadline-txt">Prazo obrigatório: <strong>28 Fev 2026</strong></div>
+      ${!isDone ? '<button class="btn-continue">Continuar ↗</button>' : '<span style="font-size:12px;color:var(--teal);font-weight:600">✓ Completo</span>'}
+    </div>`;
+
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('detailPanel').classList.add('show');
+}
+
+function closePanel() {
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('detailPanel').classList.remove('show');
+  document.querySelectorAll('tbody tr').forEach(r => r.classList.remove('active-row'));
+}
+
+// Export CSV
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const header = 'ID,Nome,Género,Departamento,Função,Estado,Progresso,Nota\n';
+  const rows = EMPLOYEES.map(e => {
+    const statusMap = { C: 'Concluído', P: 'Em Progresso', O: 'Em Atraso' };
+    return `${e.id},"${e.name}",${e.gender === 'M' ? 'Masculino' : 'Feminino'},"${e.dept}","${e.role}",${statusMap[e.status]},${e.progress}%,${e.grade > 0 ? e.grade + '%' : '—'}`;
+  }).join('\n');
+  const blob = new Blob([header + rows], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'colaboradores_QAS_2024.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+// Init
+renderTable();
+</script>
+</body>
+</html>

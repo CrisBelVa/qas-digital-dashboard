@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QAS-Digital | Dashboard SST 2024</title>
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --navy: #0B1120;
+      --navy-mid: #0F1729;
+      --navy-light: #1A2440;
+      --navy-card: #131e35;
+      --teal: #00D4B1;
+      --teal-dark: #00B89A;
+      --teal-glow: rgba(0,212,177,0.18);
+      --teal-subtle: rgba(0,212,177,0.08);
+      --white: #F0F4FF;
+      --muted: #8892A4;
+      --border: rgba(255,255,255,0.07);
+      --red: #FF4C6A;
+      --yellow: #FFD166;
+      --green: #00D4B1;
+      --sidebar-w: 240px;
+      --font-head: 'Bricolage Grotesque', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: var(--navy);
+      font-family: var(--font-body);
+      color: var(--white);
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--navy-mid);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .sidebar-logo {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo-text {
+      font-family: var(--font-head);
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+    .logo-text span { color: var(--teal); }
+    .logo-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    .sidebar-section {
+      padding: 16px 12px 8px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin: 2px 8px;
+      cursor: pointer;
+      font-size: 13.5px;
+      color: var(--muted);
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .nav-item:hover { background: var(--navy-light); color: var(--white); }
+    .nav-item.active { background: var(--teal-subtle); color: var(--teal); }
+    .nav-item .badge {
+      margin-left: auto;
+      background: var(--teal);
+      color: var(--navy);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--navy-light);
+    }
+    .avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--teal-subtle);
+      border: 2px solid var(--teal);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: var(--teal);
+      flex-shrink: 0;
+    }
+    .user-info .name { font-size: 13px; font-weight: 600; }
+    .user-info .role { font-size: 11px; color: var(--muted); }
+    .logout-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      margin-left: auto;
+      display: flex;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .logout-btn:hover { color: var(--red); }
+    .logout-btn svg { width: 15px; height: 15px; }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Topbar */
+    .topbar {
+      padding: 18px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      background: var(--navy-mid);
+    }
+    .topbar-left h1 {
+      font-family: var(--font-head);
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .topbar-left p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .tag-teal { background: var(--teal-subtle); color: var(--teal); border: 1px solid rgba(0,212,177,0.2); }
+    .tag-yellow { background: rgba(255,209,102,0.1); color: var(--yellow); border: 1px solid rgba(255,209,102,0.2); }
+    .tag-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* Content */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 28px 40px;
+    }
+    .content::-webkit-scrollbar { width: 6px; }
+    .content::-webkit-scrollbar-track { background: transparent; }
+    .content::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 3px; }
+
+    /* KPI row */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .kpi-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .kpi-card:hover { border-color: rgba(0,212,177,0.2); }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent, var(--teal));
+      opacity: 0.6;
+    }
+    .kpi-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--teal-subtle);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+      color: var(--teal);
+    }
+    .kpi-icon svg { width: 18px; height: 18px; }
+    .kpi-value {
+      font-family: var(--font-head);
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .kpi-label { font-size: 12px; color: var(--muted); }
+    .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 8px; opacity: 0.7; }
+
+    /* Charts grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .charts-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .chart-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+    }
+    .chart-card.span-2 { grid-column: span 2; }
+
+    .chart-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .chart-title {
+      font-family: var(--font-head);
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .chart-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .chart-badge {
+      font-size: 11px;
+      color: var(--teal);
+      background: var(--teal-subtle);
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(0,212,177,0.15);
+      white-space: nowrap;
+    }
+
+    .chart-wrap {
+      position: relative;
+    }
+    .chart-wrap canvas { max-height: 220px; }
+
+    /* Legend custom */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* Accidents section */
+    .accident-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    /* Risk card */
+    .risk-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      flex: 1;
+    }
+    .risk-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .risk-item:last-child { border-bottom: none; }
+    .risk-label { color: var(--muted); font-size: 12px; }
+    .risk-val { font-weight: 600; }
+    .status-ok {
+      display: inline-flex; align-items: center; gap: 5px;
+      color: var(--teal); font-size: 12px; font-weight: 600;
+    }
+    .status-warn {
+      display: inline-flex; align-items: center; gap: 5px;
+      color: var(--yellow); font-size: 12px; font-weight: 600;
+    }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* Progress bar */
+    .prog-wrap { margin-bottom: 14px; }
+    .prog-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .prog-label { color: var(--muted); }
+    .prog-val { font-weight: 600; }
+    .prog-bar {
+      height: 6px;
+      background: var(--navy-light);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--teal);
+      transition: width 1s ease;
+    }
+
+    /* Section title */
+    .section-title {
+      font-family: var(--font-head);
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 800px) {
+      .sidebar { display: none; }
+      .charts-grid, .charts-grid-3 { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">QAS<span>-Digital</span></div>
+    <div class="logo-sub">Gestão Integrada · SST</div>
+  </div>
+
+  <div class="sidebar-section">Principal</div>
+  <a class="nav-item active" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Dashboard
+    <span class="badge">2024</span>
+  </a>
+  <a class="nav-item" href="colaboradores.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Colaboradores
+  </a>
+  <a class="nav-item" href="exames.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    Exames de Saúde
+  </a>
+  <a class="nav-item" href="acidentes.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Acidentes
+  </a>
+  <a class="nav-item" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    Formação
+  </a>
+
+  <div class="sidebar-section">Gestão</div>
+  <a class="nav-item" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    Relatórios
+  </a>
+  <a class="nav-item" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg>
+    Configurações
+  </a>
+
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="avatar">A</div>
+      <div class="user-info">
+        <div class="name">Admin</div>
+        <div class="role">Administrador</div>
+      </div>
+      <button class="logout-btn" onclick="window.location.href='login.html'" title="Sair">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Relatório Anual SST</h1>
+      <p>Construção Pública, EPE · Sede Lisboa · Referência 2024</p>
+    </div>
+    <div class="topbar-right">
+      <span class="tag tag-teal"><span class="tag-dot"></span> Certificado: 62573MJT133681G</span>
+      <span class="tag tag-yellow"><span class="tag-dot"></span> Entregue 28 Mar 2025</span>
+    </div>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="content">
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--accent:#00D4B1">
+        <div class="kpi-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="kpi-value">87</div>
+        <div class="kpi-label">Trabalhadores</div>
+        <div class="kpi-sub">70 Homens · 17 Mulheres</div>
+      </div>
+      <div class="kpi-card" style="--accent:#FFD166">
+        <div class="kpi-icon" style="background:rgba(255,209,102,0.1);color:var(--yellow)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="kpi-value" style="color:var(--yellow)">166 195</div>
+        <div class="kpi-label">Horas Trabalhadas</div>
+        <div class="kpi-sub">Ano de referência 2024</div>
+      </div>
+      <div class="kpi-card" style="--accent:#FF4C6A">
+        <div class="kpi-icon" style="background:rgba(255,76,106,0.1);color:var(--red)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="kpi-value" style="color:var(--red)">2</div>
+        <div class="kpi-label">Acidentes de Trabalho</div>
+        <div class="kpi-sub">0 dias perdidos · 0 mortais</div>
+      </div>
+      <div class="kpi-card" style="--accent:#00D4B1">
+        <div class="kpi-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="kpi-value">83</div>
+        <div class="kpi-label">Exames Realizados</div>
+        <div class="kpi-sub">Admissão · Periódico · Ocasional</div>
+      </div>
+    </div>
+
+    <!-- Row 1: Gender + Age + Training Status -->
+    <div class="section-title">Força de Trabalho</div>
+    <div class="charts-grid-3" style="margin-bottom:16px">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Distribuição por Género</div>
+            <div class="chart-sub">Total de 87 trabalhadores</div>
+          </div>
+          <span class="chart-badge">2024</span>
+        </div>
+        <div class="chart-wrap" style="display:flex;align-items:center;justify-content:center;gap:32px;">
+          <div style="position:relative;width:180px;height:180px;">
+            <canvas id="genderChart"></canvas>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+              <div style="font-family:var(--font-head);font-size:24px;font-weight:800;">87</div>
+              <div style="font-size:11px;color:var(--muted);">Total</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Homens</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="width:10px;height:10px;border-radius:3px;background:#00D4B1;"></div>
+                <span style="font-family:var(--font-head);font-size:22px;font-weight:800;">70</span>
+                <span style="font-size:12px;color:var(--muted);">80.5%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Mulheres</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="width:10px;height:10px;border-radius:3px;background:#1A5276;"></div>
+                <span style="font-family:var(--font-head);font-size:22px;font-weight:800;">17</span>
+                <span style="font-size:12px;color:var(--muted);">19.5%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Distribuição Etária</div>
+            <div class="chart-sub">Por escalão de idade e género</div>
+          </div>
+          <span class="chart-badge">2 escalões activos</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="ageChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Estado de Formação</div>
+            <div class="chart-sub">Progresso OHSM · ISO 45001 · 87 colaboradores</div>
+          </div>
+          <a href="colaboradores.html" style="font-size:11px;color:var(--teal);text-decoration:none;white-space:nowrap">Ver todos ↗</a>
+        </div>
+        <div class="chart-wrap" style="display:flex;align-items:center;justify-content:center;gap:24px;">
+          <div style="position:relative;width:150px;height:150px;">
+            <canvas id="trainingStatusChart"></canvas>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+              <div style="font-family:var(--font-head);font-size:22px;font-weight:800;">87</div>
+              <div style="font-size:10px;color:var(--muted);">Total</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div>
+              <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Concluído</div>
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div style="width:9px;height:9px;border-radius:2px;background:var(--teal);"></div>
+                <span style="font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--teal)">31</span>
+                <span style="font-size:11px;color:var(--muted);">35.6%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Em Progresso</div>
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div style="width:9px;height:9px;border-radius:2px;background:#60A5FA;"></div>
+                <span style="font-family:var(--font-head);font-size:20px;font-weight:800;color:#60A5FA">40</span>
+                <span style="font-size:11px;color:var(--muted);">46.0%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Em Atraso</div>
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div style="width:9px;height:9px;border-radius:2px;background:var(--red);"></div>
+                <span style="font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--red)">16</span>
+                <span style="font-size:11px;color:var(--muted);">18.4%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Health exams -->
+    <div class="section-title">Saúde Ocupacional</div>
+    <div class="charts-grid" style="margin-bottom:16px">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Exames Médicos por Tipo</div>
+            <div class="chart-sub">Admissão, periódicos e ocasionais</div>
+          </div>
+          <span class="chart-badge">83 exames</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="examsChart"></canvas>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#00D4B1"></div>Mulheres</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#1A5276"></div>Homens</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Exames Complementares</div>
+            <div class="chart-sub">1 137 exames no total</div>
+          </div>
+          <span class="chart-badge">4 tipos</span>
+        </div>
+        <div class="chart-wrap" style="display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;">
+          <div style="width:170px;height:170px;position:relative;">
+            <canvas id="compExamsChart"></canvas>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+              <div style="font-family:var(--font-head);font-size:22px;font-weight:800;">1137</div>
+              <div style="font-size:10px;color:var(--muted);">Total</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="legend-item"><div class="legend-dot" style="background:#00D4B1"></div>Outros (959)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#00B89A"></div>Oft. (78)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#1A5276"></div>Hemograma (71)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#2E86AB"></div>Rx Tórax (29)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vaccination + Training progress -->
+    <div class="charts-grid-3" style="margin-bottom:16px">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Vacinação (Gripe)</div>
+            <div class="chart-sub">27 inoculações realizadas</div>
+          </div>
+          <span class="chart-badge">31% cobertura</span>
+        </div>
+        <div style="margin-top:4px;">
+          <div class="prog-wrap">
+            <div class="prog-header"><span class="prog-label">Mulheres</span><span class="prog-val">16</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:30.8%"></div></div>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-header"><span class="prog-label">Homens</span><span class="prog-val">11</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:31.4%;background:var(--navy-light);border:1px solid var(--teal);"></div></div>
+          </div>
+          <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Cobertura total</div>
+            <div class="prog-bar" style="height:8px;"><div class="prog-fill" style="width:31%;background:linear-gradient(90deg,var(--teal),var(--teal-dark))"></div></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px;">27 / 87 trabalhadores</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Formação SST</div>
+            <div class="chart-sub">Tema: Ergonomia</div>
+          </div>
+          <span class="chart-badge">99% cobertura</span>
+        </div>
+        <div style="margin-top:4px;">
+          <div class="prog-wrap">
+            <div class="prog-header"><span class="prog-label">Mulheres participantes</span><span class="prog-val">46</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:88.5%"></div></div>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-header"><span class="prog-label">Homens participantes</span><span class="prog-val">40</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--navy-light);border:1px solid var(--teal)"></div></div>
+          </div>
+          <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Cobertura total</div>
+            <div class="prog-bar" style="height:8px;"><div class="prog-fill" style="width:98.9%;background:linear-gradient(90deg,var(--teal),var(--teal-dark))"></div></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px;">86 / 87 trabalhadores · 1 sessão</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Acções de Informação</div>
+            <div class="chart-sub">Consulta e sensibilização</div>
+          </div>
+        </div>
+        <div style="margin-top:4px;">
+          <div class="risk-item">
+            <div>
+              <div style="font-size:13px;font-weight:600;">Admissão de trabalhadores</div>
+              <div class="risk-label">Situação 01</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="risk-val">31 acções</div>
+              <div class="risk-label">31 destinatários</div>
+            </div>
+          </div>
+          <div class="risk-item">
+            <div>
+              <div style="font-size:13px;font-weight:600;">Outras situações</div>
+              <div class="risk-label">Situação 99</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="risk-val">1 acção</div>
+              <div class="risk-label">87 destinatários</div>
+            </div>
+          </div>
+          <div class="risk-item">
+            <div>
+              <div style="font-size:13px;font-weight:600;">Consulta SST</div>
+              <div class="risk-label">Razão 02</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="risk-val">1 acção</div>
+              <div class="risk-label">87 participantes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accidents + Risk -->
+    <div class="section-title">Segurança no Trabalho</div>
+    <div class="charts-grid" style="margin-bottom:16px">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Acidentes de Trabalho</div>
+            <div class="chart-sub">Por escalão de duração de baixa</div>
+          </div>
+          <span class="chart-badge" style="background:rgba(255,76,106,0.1);color:var(--red);border-color:rgba(255,76,106,0.2);">Taxa incidência: 22.99‰</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="accidentsChart"></canvas>
+        </div>
+        <div style="display:flex;gap:16px;margin-top:16px;">
+          <div style="flex:1;background:var(--navy-light);border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--teal);">0</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Dias perdidos</div>
+          </div>
+          <div style="flex:1;background:var(--navy-light);border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--teal);">0</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Acidentes mortais</div>
+          </div>
+          <div style="flex:1;background:var(--navy-light);border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--teal);">0</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Doenças profissionais</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Factores de Risco Identificados</div>
+            <div class="chart-sub">Avaliação e medidas preventivas</div>
+          </div>
+        </div>
+        <div class="risk-item">
+          <div>
+            <div style="font-size:13px;font-weight:600;">Risco Físico</div>
+            <div class="risk-label">Avaliação de ruído, temperatura, etc.</div>
+          </div>
+          <span class="status-ok"><span class="status-dot"></span> Não identificado</span>
+        </div>
+        <div class="risk-item">
+          <div>
+            <div style="font-size:13px;font-weight:600;">Risco Químico (H312)</div>
+            <div class="risk-label">87 trabalhadores expostos · 1 avaliação</div>
+          </div>
+          <span class="status-warn"><span class="status-dot"></span> Controlado</span>
+        </div>
+        <div class="risk-item">
+          <div>
+            <div style="font-size:13px;font-weight:600;">Risco Biológico</div>
+            <div class="risk-label">Agentes biológicos</div>
+          </div>
+          <span class="status-ok"><span class="status-dot"></span> Não identificado</span>
+        </div>
+        <div class="risk-item">
+          <div>
+            <div style="font-size:13px;font-weight:600;">Risco Músculo-esquelético</div>
+            <div class="risk-label">Lesões posturais e repetitivas</div>
+          </div>
+          <span class="status-ok"><span class="status-dot"></span> Não identificado</span>
+        </div>
+        <div class="risk-item">
+          <div>
+            <div style="font-size:13px;font-weight:600;">Risco Psicossocial</div>
+            <div class="risk-label">Stress, burnout, assédio</div>
+          </div>
+          <span class="status-ok"><span class="status-dot"></span> Não identificado</span>
+        </div>
+        <div style="margin-top:14px;padding:12px;background:var(--teal-subtle);border:1px solid rgba(0,212,177,0.15);border-radius:10px;font-size:12px;">
+          <span style="color:var(--teal);font-weight:600;">Medidas adoptadas:</span>
+          <span style="color:var(--muted);margin-left:4px;">Manuseamento seguro de agentes químicos · EPI's · Outras medidas preventivas</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  Chart.defaults.color = '#8892A4';
+  Chart.defaults.font.family = "'Inter', sans-serif";
+
+  const teal = '#00D4B1';
+  const tealDark = '#00B89A';
+  const navy = '#1A2440';
+  const navyMid = '#2E4060';
+  const red = '#FF4C6A';
+  const yellow = '#FFD166';
+  const gridColor = 'rgba(255,255,255,0.05)';
+
+  // 1. Gender donut
+  new Chart(document.getElementById('genderChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Homens', 'Mulheres'],
+      datasets: [{
+        data: [70, 17],
+        backgroundColor: [teal, '#1A5276'],
+        borderColor: '#0F1729',
+        borderWidth: 3,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      cutout: '72%',
+      plugins: { legend: { display: false }, tooltip: {
+        callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/87*100)}%)` }
+      }},
+      animation: { animateRotate: true, duration: 900 }
+    }
+  });
+
+  // Training status doughnut
+  new Chart(document.getElementById('trainingStatusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Concluído', 'Em Progresso', 'Em Atraso'],
+      datasets: [{
+        data: [31, 40, 16],
+        backgroundColor: [teal, '#60A5FA', red],
+        borderColor: '#0F1729',
+        borderWidth: 3,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      cutout: '70%',
+      plugins: { legend: { display: false }, tooltip: {
+        callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/87*100)}%)` }
+      }},
+      animation: { animateRotate: true, duration: 900 }
+    }
+  });
+
+  // 2. Age bar
+  new Chart(document.getElementById('ageChart'), {
+    type: 'bar',
+    data: {
+      labels: ['< 18 anos', '18–19 anos', '20–49 anos', '50+ anos'],
+      datasets: [
+        { label: 'Homens',   data: [0, 0, 40, 30], backgroundColor: teal, borderRadius: 6 },
+        { label: 'Mulheres', data: [0, 0, 10, 7],  backgroundColor: '#1A5276', borderRadius: 6 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { stacked: true, grid: { color: gridColor }, ticks: { font: { size: 11 } } },
+        y: { stacked: true, grid: { color: gridColor }, ticks: { stepSize: 10 } }
+      }
+    }
+  });
+
+  // 3. Exams grouped bar
+  new Chart(document.getElementById('examsChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Admissão', 'Periódicos', 'Ocasionais'],
+      datasets: [
+        { label: 'Mulheres', data: [19, 24, 3], backgroundColor: teal, borderRadius: 6 },
+        { label: 'Homens',   data: [12, 22, 3], backgroundColor: '#1A5276', borderRadius: 6 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: gridColor } },
+        y: { grid: { color: gridColor }, ticks: { stepSize: 5 } }
+      }
+    }
+  });
+
+  // 4. Complementary exams doughnut
+  new Chart(document.getElementById('compExamsChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Outros', 'Oftalmológico', 'Hemograma', 'Rx Tórax'],
+      datasets: [{
+        data: [959, 78, 71, 29],
+        backgroundColor: [teal, tealDark, '#1A5276', '#2E86AB'],
+        borderColor: '#0F1729',
+        borderWidth: 3,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      cutout: '70%',
+      plugins: { legend: { display: false } },
+      animation: { duration: 900 }
+    }
+  });
+
+  // 5. Accidents bar
+  new Chart(document.getElementById('accidentsChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Sem baixa\n(<1 dia)', '1–3 dias\nde baixa', '4–30 dias\nde baixa', '>30 dias\nde baixa', 'Mortal'],
+      datasets: [
+        { label: 'Homens', data: [2, 0, 0, 0, 0], backgroundColor: red, borderRadius: 6 },
+        { label: 'Mulheres', data: [0, 0, 0, 0, 0], backgroundColor: teal, borderRadius: 6 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: {
+        position: 'top',
+        labels: { boxWidth: 10, boxHeight: 10, borderRadius: 3, padding: 12, font: { size: 11 } }
+      }},
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { font: { size: 10 } } },
+        y: { grid: { color: gridColor }, ticks: { stepSize: 1 }, max: 3 }
+      }
+    }
+  });
+</script>
+</body>
+</html>
