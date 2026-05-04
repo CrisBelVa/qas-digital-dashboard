@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,6 +23,16 @@
       --red: #FF4C6A;
       --font-head: 'Bricolage Grotesque', sans-serif;
       --font-body: 'Inter', sans-serif;
+    }
+    [data-theme="light"] {
+      --navy: #F4F6FA;
+      --navy-mid: #FFFFFF;
+      --navy-light: #E8EDF5;
+      --white: #111827;
+      --muted: #6B7280;
+      --border: rgba(0,0,0,0.09);
+      --teal-subtle: rgba(0,212,177,0.1);
+      --teal-glow: rgba(0,212,177,0.2);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -290,15 +300,39 @@
     }
     .loading .spinner { display: block; }
     .loading .btn-text { display: none; }
+    .theme-toggle {
+      position: fixed;
+      top: 16px; right: 16px;
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--navy-light);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted);
+      transition: all 0.2s;
+      z-index: 10;
+    }
+    .theme-toggle:hover { color: var(--teal); border-color: var(--teal); }
+    .theme-toggle svg { width: 16px; height: 16px; }
+    .logo-img {
+      height: 56px;
+      width: auto;
+      display: block;
+      margin: 0 auto 16px;
+    }
   </style>
 </head>
 <body>
   <div class="blob blob-1"></div>
   <div class="blob blob-2"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Alternar tema">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  </button>
 
   <div class="login-wrapper">
     <div class="logo-area">
-      <div class="logo-text">QAS<span>-Digital</span></div>
+      <img id="loginLogo" src="img/logo-white.png" alt="QAS-Digital" class="logo-img" />
       <div class="logo-sub">Plataforma de Gestão Integrada · SST</div>
     </div>
 
@@ -359,6 +393,22 @@
   </div>
 
   <script>
+    const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+    const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+
+    function applyTheme(theme) {
+      const isLight = theme === 'light';
+      document.documentElement.dataset.theme = theme;
+      localStorage.setItem('qas-theme', theme);
+      document.getElementById('loginLogo').src = isLight ? 'img/logo.png' : 'img/logo-white.png';
+      document.getElementById('themeToggle').innerHTML = isLight ? moonIcon : sunIcon;
+    }
+    function toggleTheme() {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+    }
+    applyTheme(localStorage.getItem('qas-theme') || 'dark');
+
     let selectedRole = 'admin';
 
     function selectRole(btn) {
