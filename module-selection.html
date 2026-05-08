@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QAS-Digital | Selecção de Módulo</title>
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #0B1120;
+      --navy-mid: #0F1729;
+      --navy-light: #1A2440;
+      --teal: #00D4B1;
+      --teal-dark: #00B89A;
+      --teal-subtle: rgba(0,212,177,0.08);
+      --white: #F0F4FF;
+      --muted: #A0AEC0;
+      --border: rgba(255,255,255,0.07);
+      --font-head: 'Bricolage Grotesque', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      background: radial-gradient(circle at top left, rgba(0,212,177,0.18), transparent 34%),
+                  radial-gradient(circle at bottom right, rgba(0,212,177,0.06), transparent 30%),
+                  var(--navy);
+      font-family: var(--font-body);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+    .page-shell {
+      width: 100%;
+      max-width: 960px;
+      min-height: 100vh;
+      background: rgba(11,17,32,0.98);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.45);
+      padding: 40px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 32px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand img { height: 42px; }
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .brand-title {
+      font-family: var(--font-head);
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+    }
+    .brand-sub { font-size: 13px; color: var(--muted); }
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+      align-items: stretch;
+    }
+    .module-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+    }
+    .module-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0,212,177,0.35);
+      background: rgba(0,212,177,0.08);
+    }
+    .module-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background: rgba(0,212,177,0.12);
+      display: grid;
+      place-items: center;
+      margin-bottom: 24px;
+    }
+    .module-icon svg { width: 26px; height: 26px; color: var(--teal); }
+    .module-title {
+      font-family: var(--font-head);
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+    .module-desc {
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    .module-btn {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: var(--teal);
+      color: var(--navy);
+      text-decoration: none;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+    .module-btn:hover { background: var(--teal-dark); }
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 18px 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+    }
+    @media (max-width: 820px) {
+      body { padding: 20px; }
+      .page-shell { padding: 28px; }
+      .module-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <div class="header">
+      <div class="brand">
+        <img src="img/logo-white.png" alt="QAS-Digital" />
+        <div class="brand-text">
+          <div class="brand-title">Selecção de Módulo</div>
+          <div class="brand-sub">Após o login, escolha o módulo desejado.</div>
+        </div>
+      </div>
+      <div class="note">Módulo Segurança & Saúde no Trabalho redireciona para o conjunto de dashboards existentes. O módulo Ambiente abre um novo painel com métricas ambientais chave.</div>
+    </div>
+
+    <div class="module-grid">
+      <article class="module-card">
+        <div>
+          <div class="module-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          </div>
+          <h2 class="module-title">Segurança e Saúde no Trabalho</h2>
+          <p class="module-desc">Aceda aos dashboards de SST que já estão implementados: incidentes, colaboradores, exames e formação.</p>
+        </div>
+        <a class="module-btn" id="sstBtn" href="dashboard.html">Abrir SST</a>
+      </article>
+
+      <article class="module-card">
+        <div>
+          <div class="module-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8 15h8"/><path d="M8 11h8"/></svg>
+          </div>
+          <h2 class="module-title">Ambiente</h2>
+          <p class="module-desc">Aceda ao painel de métricas ambientais para indicadores de energia, água, emissões, circularidade e iniciativas verdes.</p>
+        </div>
+        <a class="module-btn" id="ambienteBtn" href="ambiente.html">Abrir Ambiente</a>
+      </article>
+    </div>
+  </div>
+  <script>
+    const savedTheme = localStorage.getItem('qas-theme');
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+      document.documentElement.dataset.theme = savedTheme;
+    }
+  </script>
+</body>
+</html>

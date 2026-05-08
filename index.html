@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt" data-theme="dark">
+<html lang="pt" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -407,7 +407,7 @@
       const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
       applyTheme(next);
     }
-    applyTheme(localStorage.getItem('qas-theme') || 'dark');
+    applyTheme(localStorage.getItem('qas-theme') || 'light');
 
     let selectedRole = 'admin';
 
@@ -453,7 +453,7 @@
         btn.querySelector('.spinner').style.display = 'block';
 
         setTimeout(() => {
-          window.location.href = 'dashboard.html';
+          window.location.href = 'module-selection.html';
         }, 900);
       } else {
         errorText.textContent = selectedRole === 'admin'
