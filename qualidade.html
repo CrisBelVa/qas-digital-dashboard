@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QAS-Digital | ISO 9001 — Qualidade</title>
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --navy: #0B1120;
+      --navy-mid: #0F1729;
+      --navy-light: #1A2440;
+      --navy-card: #131e35;
+      --teal: #00D4B1;
+      --teal-dark: #00B89A;
+      --teal-glow: rgba(0,212,177,0.18);
+      --teal-subtle: rgba(0,212,177,0.08);
+      --white: #F0F4FF;
+      --muted: #8892A4;
+      --border: rgba(255,255,255,0.07);
+      --red: #FF4C6A;
+      --yellow: #FFD166;
+      --blue: #60A5FA;
+      --sidebar-w: 240px;
+      --font-head: 'Bricolage Grotesque', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+    [data-theme="light"] {
+      --navy: #F4F6FA;
+      --navy-mid: #FFFFFF;
+      --navy-light: #E8EDF5;
+      --navy-card: #FFFFFF;
+      --white: #111827;
+      --muted: #6B7280;
+      --border: rgba(0,0,0,0.09);
+      --teal-subtle: rgba(0,212,177,0.1);
+      --teal-glow: rgba(0,212,177,0.2);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { background: var(--navy); font-family: var(--font-body); color: var(--white); display: flex; overflow: hidden; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--navy-mid); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }
+    .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+    .sidebar-logo-img { height: 42px; width: auto; max-width: 180px; object-fit: contain; display: block; }
+    .sidebar-section { padding: 16px 12px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 600; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; margin: 2px 8px; cursor: pointer; font-size: 13.5px; color: var(--muted); transition: all 0.2s; text-decoration: none; }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .nav-item:hover { background: var(--navy-light); color: var(--white); }
+    .nav-item.active { background: var(--teal-subtle); color: var(--teal); }
+    .nav-item .badge { margin-left: auto; background: var(--red); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+    .sidebar-footer { margin-top: auto; padding: 16px 12px; border-top: 1px solid var(--border); }
+    .user-chip { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; background: var(--navy-light); }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--teal-subtle); border: 2px solid var(--teal); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--teal); flex-shrink: 0; }
+    .user-info .name { font-size: 13px; font-weight: 600; }
+    .user-info .role { font-size: 11px; color: var(--muted); }
+    .logout-btn { background: none; border: none; cursor: pointer; color: var(--muted); margin-left: auto; display: flex; padding: 4px; transition: color 0.2s; }
+    .logout-btn:hover { color: var(--red); }
+    .logout-btn svg { width: 15px; height: 15px; }
+
+    /* MAIN */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar { padding: 18px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: var(--navy-mid); }
+    .topbar-left h1 { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
+    .topbar-left p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .tag { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .tag-teal { background: var(--teal-subtle); color: var(--teal); border: 1px solid rgba(0,212,177,0.2); }
+    .tag-yellow { background: rgba(255,209,102,0.1); color: var(--yellow); border: 1px solid rgba(255,209,102,0.2); }
+    .tag-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .module-return { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--border); background: var(--navy-light); color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 700; transition: all 0.2s; flex-shrink: 0; }
+    .module-return:hover { color: var(--teal); border-color: var(--teal); background: rgba(0,212,177,0.08); }
+    .theme-toggle { width: 34px; height: 34px; border-radius: 9px; background: var(--navy-light); border: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--muted); transition: all 0.2s; flex-shrink: 0; }
+    .theme-toggle:hover { color: var(--teal); border-color: var(--teal); }
+    .theme-toggle svg { width: 16px; height: 16px; }
+
+    /* CONTENT */
+    .content { flex: 1; overflow-y: auto; padding: 24px 28px 40px; }
+    .content::-webkit-scrollbar { width: 6px; }
+    .content::-webkit-scrollbar-track { background: transparent; }
+    .content::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 3px; }
+
+    /* SECTION TITLE */
+    .section-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* KPI GRID */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+    .kpi-card { background: var(--navy-card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; position: relative; overflow: hidden; transition: border-color 0.2s; }
+    .kpi-card:hover { border-color: rgba(0,212,177,0.2); }
+    .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent, var(--teal)); opacity: 0.6; }
+    .kpi-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--teal-subtle); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; color: var(--teal); }
+    .kpi-icon svg { width: 18px; height: 18px; }
+    .kpi-value { font-family: var(--font-head); font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+    .kpi-label { font-size: 12px; color: var(--muted); }
+    .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 8px; opacity: 0.7; }
+
+    /* CHARTS */
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .charts-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .chart-card { background: var(--navy-card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; }
+    .chart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+    .chart-title { font-family: var(--font-head); font-size: 14px; font-weight: 700; }
+    .chart-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .chart-badge { font-size: 11px; color: var(--teal); background: var(--teal-subtle); padding: 3px 9px; border-radius: 20px; border: 1px solid rgba(0,212,177,0.15); white-space: nowrap; }
+    .chart-badge-red { font-size: 11px; color: var(--red); background: rgba(255,76,106,0.1); padding: 3px 9px; border-radius: 20px; border: 1px solid rgba(255,76,106,0.2); white-space: nowrap; }
+    .chart-wrap canvas { max-height: 220px; }
+
+    /* LEGEND */
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+    /* STATUS PILLS */
+    .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+    .pill-ok    { background: rgba(0,212,177,0.12); color: var(--teal); }
+    .pill-warn  { background: rgba(255,209,102,0.12); color: var(--yellow); }
+    .pill-alert { background: rgba(255,76,106,0.12); color: var(--red); }
+    .pill-info  { background: rgba(96,165,250,0.12); color: var(--blue); }
+    .pill-dot   { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+    /* PROCESS GRID */
+    .process-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
+    .process-card { background: var(--navy-card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; transition: border-color 0.2s; }
+    .process-card:hover { border-color: rgba(0,212,177,0.25); }
+    .process-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .process-id { font-size: 11px; font-weight: 700; color: var(--teal); letter-spacing: 0.5px; font-family: var(--font-head); }
+    .process-name { font-size: 13.5px; font-weight: 600; margin-bottom: 4px; }
+    .process-owner { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+    .process-meta { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--muted); padding-top: 10px; border-top: 1px solid var(--border); }
+    .process-metric { font-size: 12px; font-weight: 600; color: var(--white); }
+
+    /* PROGRESS BAR */
+    .prog-wrap { margin-bottom: 14px; }
+    .prog-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+    .prog-label { color: var(--muted); }
+    .prog-val { font-weight: 600; }
+    .prog-bar { height: 6px; background: var(--navy-light); border-radius: 3px; overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 3px; background: var(--teal); transition: width 1s ease; }
+
+    /* LIST ITEMS */
+    .list-item { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .list-item:last-child { border-bottom: none; }
+    .list-label { color: var(--muted); font-size: 11px; margin-top: 2px; }
+
+    /* NC TABLE */
+    .table-wrap { overflow-x: auto; }
+    .nc-table { width: 100%; border-collapse: collapse; min-width: 680px; }
+    .nc-table th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); font-weight: 600; padding: 8px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+    .nc-table td { font-size: 13px; padding: 13px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .nc-table tr:last-child td { border-bottom: none; }
+    .nc-table tr:hover td { background: rgba(0,212,177,0.03); }
+    .nc-id { font-family: var(--font-head); font-size: 12px; font-weight: 700; color: var(--teal); white-space: nowrap; }
+    .nc-dept { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-grid-3 { grid-template-columns: 1fr 1fr; }
+      .process-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 800px) {
+      .sidebar { display: none; }
+      .charts-grid, .charts-grid-3 { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .process-grid { grid-template-columns: 1fr; }
+      .topbar-right .tag { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img id="sidebarLogo" src="img/logo-white.png" alt="QAS-Digital" class="sidebar-logo-img" />
+  </div>
+
+  <div class="sidebar-section">Principal</div>
+  <a class="nav-item active" href="#">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Visão Geral
+  </a>
+
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="avatar">A</div>
+      <div class="user-info">
+        <div class="name">Admin</div>
+        <div class="role">Administrador</div>
+      </div>
+      <button class="logout-btn" onclick="window.location.href='index.html'" title="Sair">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>ISO 9001 — Qualidade</h1>
+      <p>Metropolitano de Lisboa</p>
+    </div>
+    <div class="topbar-right">
+      <a class="module-return" href="module-selection.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="15 18 9 12 15 6"/></svg>
+        Voltar à seleção
+      </a>
+      <span class="tag tag-teal"><span class="tag-dot"></span> ISO 9001:2015 Certificado</span>
+      <span class="tag tag-yellow"><span class="tag-dot"></span> Rev. 2024</span>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Alternar tema">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--accent:#00D4B1">
+        <div class="kpi-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="kpi-value">94,2%</div>
+        <div class="kpi-label">Satisfação de Clientes</div>
+        <div class="kpi-sub">Meta ≥ 90% · +4,2 p.p. acima</div>
+      </div>
+      <div class="kpi-card" style="--accent:#FF4C6A">
+        <div class="kpi-icon" style="background:rgba(255,76,106,0.1);color:var(--red)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="kpi-value" style="color:var(--red)">7</div>
+        <div class="kpi-label">Não Conformidades Abertas</div>
+        <div class="kpi-sub">35 registadas YTD · 28 fechadas</div>
+      </div>
+      <div class="kpi-card" style="--accent:#FFD166">
+        <div class="kpi-icon" style="background:rgba(255,209,102,0.1);color:var(--yellow)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="kpi-value" style="color:var(--yellow)">5</div>
+        <div class="kpi-label">Ações Corretivas em Curso</div>
+        <div class="kpi-sub">12 total YTD · 7 concluídas · 0 em atraso</div>
+      </div>
+      <div class="kpi-card" style="--accent:#00D4B1">
+        <div class="kpi-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+        </div>
+        <div class="kpi-value">97,3%</div>
+        <div class="kpi-label">Eficácia do SGQ</div>
+        <div class="kpi-sub">9/9 processos certificados conformes</div>
+      </div>
+    </div>
+
+    <!-- PROCESS MAP -->
+    <div class="section-title">Mapa de Processos ISO 9001</div>
+    <div class="process-grid">
+
+      <div class="process-card">
+        <div class="process-header">
+          <span class="process-id">P.01</span>
+          <span class="pill pill-ok"><span class="pill-dot"></span>Conforme</span>
+        </div>
+        <div class="process-name">Gestão pela Direção</div>
+        <div class="process-owner">Responsável: Direção Geral</div>
+        <div class="process-meta">
+          <span>Revisão: Out 2024</span>
+          <span class="process-metric">100% objetivos</span>
+        </div>
+      </div>
+
+      <div class="process-card">
+        <div class="process-header">
+          <span class="process-id">P.02</span>
+          <span class="pill pill-ok"><span class="pill-dot"></span>Conforme</span>
+        </div>
+        <div class="process-name">Planeamento do SGQ</div>
+        <div class="process-owner">Responsável: Dir. Qualidade</div>
+        <div class="process-meta">
+          <span>Revisão: Set 2024</span>
+          <span class="process-metric">3/3 objetivos</span>
+        </div>
+      </div>
+
+      <div class="process-card">
+        <div class="process-header">
+          <span class="process-id">P.03</span>
+          <span class="pill pill-info"><span class="pill-dot"></span>Em Progresso</span>
+        </div>
+        <div class="process-name">Gestão de Riscos e Oportunidades</div>
+        <div class="process-owner">Responsável: Direção Geral</div>
+        <div class="process-meta">
+          <span>Revisão: Nov 2024</span>
+          <span class="process-metric">8 riscos mapeados</span>
+        </div>
+      </div>
+
+      <div class="process-card">
+        <div class="process-header">
+          <span class="process-id">P.04</span>
+          <span class="pill pill-ok"><span class="pill-dot"></span>Conforme</span>
+        </div>
+        <div class="process-name">Controlo de Documentos</div>
+        <div class="process-owner">Responsável: SGQ</div>
+        <div class="process-meta">
+          <span>Revisão: Ago 2024</span>
+          <span class="process-metric">100% validados</span>
+        </div>
+      </div>
+
+      <div class="process-card">
+        <div class="process-header">
+          <span class="process-id">P.05</span>
+          <span class="pill pill-ok"><span class="pill-dot"></span>Conforme</span>
+        </div>
+        <div class="process-name">Gestão de Recursos Humanos</div>
+        <div class="process-owner">Responsável: Dir. RH</div>
+        <div class="process-meta">
+          <span>Revisão: Jul 2024</span>
+          <span class="process-metric">87 colaboradores</span>
+        </div>
+      </div>
+
+      <div class="process-card">
+        <div class="process-header">
+          <span class="process-id">P.06</span>
+          <span class="pill pill-warn"><span class="pill-dot"></span>Atenção</span>
+        </div>
+        <div class="process-name">Gestão de Fornecedores</div>
+        <div class="process-owner">Responsável: Compras</div>
+        <div class="process-meta">
+          <span>Revisão: Out 2024</span>
+          <span class="process-metric">98,6% conformidade</span>
+        </div>
+      </div>
+
+      <div class="process-card">
+        <div class="process-header">
+          <span class="process-id">P.07</span>
+          <span class="pill pill-ok"><span class="pill-dot"></span>Conforme</span>
+        </div>
+        <div class="process-name">Realização do Serviço</div>
+        <div class="process-owner">Responsável: Operações</div>
+        <div class="process-meta">
+          <span>Revisão: Nov 2024</span>
+          <span class="process-metric">95,1% OTD</span>
+        </div>
+      </div>
+
+      <div class="process-card">
+        <div class="process-header">
+          <span class="process-id">P.08</span>
+          <span class="pill pill-warn"><span class="pill-dot"></span>Atenção</span>
+        </div>
+        <div class="process-name">Tratamento de Não Conformidades</div>
+        <div class="process-owner">Responsável: SGQ</div>
+        <div class="process-meta">
+          <span>Revisão: Dez 2024</span>
+          <span class="process-metric">35 NC · 80% fechadas</span>
+        </div>
+      </div>
+
+      <div class="process-card">
+        <div class="process-header">
+          <span class="process-id">P.09</span>
+          <span class="pill pill-info"><span class="pill-dot"></span>Em Progresso</span>
+        </div>
+        <div class="process-name">Auditorias Internas</div>
+        <div class="process-owner">Responsável: Dir. Qualidade</div>
+        <div class="process-meta">
+          <span>Revisão: Nov 2024</span>
+          <span class="process-metric">2/3 auditorias</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- NC SECTION -->
+    <div class="section-title">Não Conformidades</div>
+    <div class="charts-grid" style="margin-bottom:16px">
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">NC por Categoria</div>
+            <div class="chart-sub">35 não conformidades registadas em 2024</div>
+          </div>
+          <span class="chart-badge-red">YTD 2024</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="ncCategoryChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">NC por Estado</div>
+            <div class="chart-sub">Distribuição atual do estado de tratamento</div>
+          </div>
+          <span class="chart-badge">35 total</span>
+        </div>
+        <div class="chart-wrap" style="display:flex;align-items:center;justify-content:center;gap:28px;">
+          <div style="position:relative;width:160px;height:160px;">
+            <canvas id="ncStatusChart"></canvas>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+              <div style="font-family:var(--font-head);font-size:22px;font-weight:800;">35</div>
+              <div style="font-size:10px;color:var(--muted);">Total</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div>
+              <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Abertas</div>
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div style="width:9px;height:9px;border-radius:2px;background:var(--red);"></div>
+                <span style="font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--red)">7</span>
+                <span style="font-size:11px;color:var(--muted);">20%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Em Análise</div>
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div style="width:9px;height:9px;border-radius:2px;background:var(--yellow);"></div>
+                <span style="font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--yellow)">8</span>
+                <span style="font-size:11px;color:var(--muted);">23%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Fechadas</div>
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div style="width:9px;height:9px;border-radius:2px;background:var(--teal);"></div>
+                <span style="font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--teal)">20</span>
+                <span style="font-size:11px;color:var(--muted);">57%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-grid" style="margin-bottom:16px">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Evolução Mensal de NC</div>
+            <div class="chart-sub">Número de NC registadas por mês · 2024</div>
+          </div>
+          <span class="chart-badge">Média: 2,9/mês</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="ncTrendChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Satisfação de Clientes</div>
+            <div class="chart-sub">Índice mensal de satisfação · meta ≥ 90%</div>
+          </div>
+          <span class="chart-badge">94,2% Nov</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="satisfactionChart"></canvas>
+        </div>
+        <div style="margin-top:12px;padding:10px 12px;background:var(--teal-subtle);border:1px solid rgba(0,212,177,0.15);border-radius:10px;font-size:12px;display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--teal);font-weight:600;">Meta 90%</span>
+          <span style="color:var(--muted);">Todos os meses acima do objetivo definido pela Direção</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAPA SECTION -->
+    <div class="section-title">Ações Corretivas e Preventivas</div>
+    <div class="charts-grid" style="margin-bottom:16px">
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">CAPA por Departamento</div>
+            <div class="chart-sub">Taxa de conclusão de ações corretivas</div>
+          </div>
+          <span class="chart-badge">12 total</span>
+        </div>
+        <div style="margin-top:4px;">
+          <div class="prog-wrap">
+            <div class="prog-header"><span class="prog-label">Produção</span><span class="prog-val">3 / 5 concluídas</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:60%"></div></div>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-header"><span class="prog-label">Logística</span><span class="prog-val">1 / 2 concluídas</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:50%;background:var(--yellow)"></div></div>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-header"><span class="prog-label">Comercial</span><span class="prog-val">2 / 2 concluídas</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-header"><span class="prog-label">Qualidade / SGQ</span><span class="prog-val">1 / 1 concluída</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-header"><span class="prog-label">Manutenção</span><span class="prog-val">0 / 2 concluídas</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--red)"></div></div>
+          </div>
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Eficácia global</div>
+            <div class="prog-bar" style="height:8px;"><div class="prog-fill" style="width:58.3%;background:linear-gradient(90deg,var(--teal),var(--teal-dark))"></div></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px;">7 / 12 ações concluídas · 0 em atraso</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Ações Corretivas em Aberto</div>
+            <div class="chart-sub">Acompanhamento das 5 ações em curso</div>
+          </div>
+          <span class="chart-badge-red">5 em curso</span>
+        </div>
+        <div class="list-item">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:2px;">CAP-2024-012</div>
+            <div style="font-size:13px;font-weight:600;">Controlo de processo de manutenção</div>
+            <div class="list-label">Manutenção · Prazo: 15 Jan 2025</div>
+          </div>
+          <span class="pill pill-info"><span class="pill-dot"></span>Em Curso</span>
+        </div>
+        <div class="list-item">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:2px;">CAP-2024-011</div>
+            <div style="font-size:13px;font-weight:600;">Renegociação com fornecedor crítico</div>
+            <div class="list-label">Logística · Prazo: 30 Dez 2024</div>
+          </div>
+          <span class="pill pill-info"><span class="pill-dot"></span>Em Curso</span>
+        </div>
+        <div class="list-item">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:2px;">CAP-2024-010</div>
+            <div style="font-size:13px;font-weight:600;">Formação da equipa de produção</div>
+            <div class="list-label">Produção · Prazo: 20 Dez 2024</div>
+          </div>
+          <span class="pill pill-info"><span class="pill-dot"></span>Em Curso</span>
+        </div>
+        <div class="list-item">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:2px;">CAP-2024-009</div>
+            <div style="font-size:13px;font-weight:600;">Atualização de procedimentos operacionais</div>
+            <div class="list-label">Produção · Prazo: 15 Dez 2024</div>
+          </div>
+          <span class="pill pill-info"><span class="pill-dot"></span>Em Curso</span>
+        </div>
+        <div class="list-item">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:2px;">CAP-2024-008</div>
+            <div style="font-size:13px;font-weight:600;">Revisão do processo de receção de serviço</div>
+            <div class="list-label">Logística · Prazo: 10 Dez 2024</div>
+          </div>
+          <span class="pill pill-warn"><span class="pill-dot"></span>Em Risco</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERFORMANCE INDICATORS -->
+    <div class="section-title">Indicadores de Desempenho</div>
+    <div class="charts-grid" style="margin-bottom:16px">
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Indicadores-Chave de Desempenho</div>
+            <div class="chart-sub">KPIs do SGQ vs. metas definidas · 2024</div>
+          </div>
+          <span class="chart-badge">4 indicadores</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="perfChart"></canvas>
+        </div>
+        <div style="margin-top:12px;padding:10px 12px;background:var(--teal-subtle);border:1px solid rgba(0,212,177,0.15);border-radius:10px;font-size:12px;color:var(--muted);">
+          <span style="color:var(--teal);font-weight:600;">Linha tracejada:</span> Meta mínima definida pelo SGQ (90%)
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Resultados de Auditorias Internas</div>
+            <div class="chart-sub">Conformidades, NC e observações por trimestre</div>
+          </div>
+          <span class="chart-badge">3 auditorias</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="auditChart"></canvas>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Conformidades</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Não Conformidades</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Observações</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NC REGISTER TABLE -->
+    <div class="section-title">Registo de Não Conformidades</div>
+    <div class="chart-card" style="margin-bottom:16px">
+      <div class="chart-header" style="margin-bottom:16px">
+        <div>
+          <div class="chart-title">Histórico de NC · 2024</div>
+          <div class="chart-sub">Últimas 8 não conformidades registadas</div>
+        </div>
+        <span class="chart-badge">35 total YTD</span>
+      </div>
+      <div class="table-wrap">
+        <table class="nc-table">
+          <thead>
+            <tr>
+              <th>Referência</th>
+              <th>Descrição</th>
+              <th>Departamento</th>
+              <th>Prioridade</th>
+              <th>Estado</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="nc-id">NC-2024-035</div></td>
+              <td><div>Atraso na prestação de serviço ao cliente</div><div class="nc-dept">Origem: Reclamação cliente</div></td>
+              <td>Operações</td>
+              <td><span class="pill pill-alert">Alta</span></td>
+              <td><span class="pill pill-alert"><span class="pill-dot"></span>Aberta</span></td>
+              <td style="color:var(--muted);font-size:12px;">28 Nov 2024</td>
+            </tr>
+            <tr>
+              <td><div class="nc-id">NC-2024-034</div></td>
+              <td><div>Desvio de parâmetro crítico de processo</div><div class="nc-dept">Origem: Auditoria interna</div></td>
+              <td>Manutenção</td>
+              <td><span class="pill pill-warn">Média</span></td>
+              <td><span class="pill pill-info"><span class="pill-dot"></span>Em Análise</span></td>
+              <td style="color:var(--muted);font-size:12px;">25 Nov 2024</td>
+            </tr>
+            <tr>
+              <td><div class="nc-id">NC-2024-033</div></td>
+              <td><div>Reclamação formal de cliente — pontualidade</div><div class="nc-dept">Origem: Reclamação cliente</div></td>
+              <td>Comercial</td>
+              <td><span class="pill pill-alert">Alta</span></td>
+              <td><span class="pill pill-info"><span class="pill-dot"></span>Em Análise</span></td>
+              <td style="color:var(--muted);font-size:12px;">20 Nov 2024</td>
+            </tr>
+            <tr>
+              <td><div class="nc-id">NC-2024-032</div></td>
+              <td><div>Serviço não conforme com requisito contratual</div><div class="nc-dept">Origem: Controlo de processo</div></td>
+              <td>Produção</td>
+              <td><span class="pill pill-alert">Alta</span></td>
+              <td><span class="pill pill-alert"><span class="pill-dot"></span>Aberta</span></td>
+              <td style="color:var(--muted);font-size:12px;">18 Nov 2024</td>
+            </tr>
+            <tr>
+              <td><div class="nc-id">NC-2024-031</div></td>
+              <td><div>Fornecedor com entrega fora do prazo acordado</div><div class="nc-dept">Origem: Avaliação de fornecedores</div></td>
+              <td>Compras</td>
+              <td><span class="pill pill-warn">Média</span></td>
+              <td><span class="pill pill-alert"><span class="pill-dot"></span>Aberta</span></td>
+              <td style="color:var(--muted);font-size:12px;">15 Nov 2024</td>
+            </tr>
+            <tr>
+              <td><div class="nc-id">NC-2024-030</div></td>
+              <td><div>Desvio detetado em auditoria interna Q3</div><div class="nc-dept">Origem: Auditoria interna</div></td>
+              <td>SGQ</td>
+              <td><span class="pill" style="background:rgba(96,165,250,0.12);color:var(--blue)">Baixa</span></td>
+              <td><span class="pill pill-info"><span class="pill-dot"></span>Em Análise</span></td>
+              <td style="color:var(--muted);font-size:12px;">10 Nov 2024</td>
+            </tr>
+            <tr>
+              <td><div class="nc-id">NC-2024-029</div></td>
+              <td><div>Documentação de processo desatualizada</div><div class="nc-dept">Origem: Revisão documental</div></td>
+              <td>SGQ</td>
+              <td><span class="pill" style="background:rgba(96,165,250,0.12);color:var(--blue)">Baixa</span></td>
+              <td><span class="pill pill-ok"><span class="pill-dot"></span>Fechada</span></td>
+              <td style="color:var(--muted);font-size:12px;">05 Nov 2024</td>
+            </tr>
+            <tr>
+              <td><div class="nc-id">NC-2024-028</div></td>
+              <td><div>Reclamação de cliente resolvida com eficácia</div><div class="nc-dept">Origem: Reclamação cliente</div></td>
+              <td>Comercial</td>
+              <td><span class="pill pill-alert">Alta</span></td>
+              <td><span class="pill pill-ok"><span class="pill-dot"></span>Fechada</span></td>
+              <td style="color:var(--muted);font-size:12px;">01 Nov 2024</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+  Chart.defaults.font.family = "'Inter', sans-serif";
+
+  const teal = '#00D4B1', tealDark = '#00B89A', red = '#FF4C6A', yellow = '#FFD166', blue = '#60A5FA';
+  const charts = {};
+
+  const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+  const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+
+  function themeColors(isLight) {
+    return {
+      text:   isLight ? '#6B7280' : '#8892A4',
+      grid:   isLight ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.05)',
+      border: isLight ? '#F4F6FA' : '#0F1729',
+    };
+  }
+
+  function buildCharts() {
+    const isLight = document.documentElement.dataset.theme === 'light';
+    const c = themeColors(isLight);
+    Chart.defaults.color = c.text;
+
+    // NC by Category
+    if (charts.ncCat) charts.ncCat.destroy();
+    charts.ncCat = new Chart(document.getElementById('ncCategoryChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Produto / Serviço', 'Processo', 'Sistema SGQ', 'Reclamação', 'Fornecedor'],
+        datasets: [{
+          label: 'NC',
+          data: [8, 12, 4, 6, 5],
+          backgroundColor: [
+            'rgba(255,76,106,0.75)', 'rgba(255,76,106,0.60)', 'rgba(255,76,106,0.45)',
+            'rgba(255,76,106,0.55)', 'rgba(255,76,106,0.50)'
+          ],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: c.grid }, ticks: { font: { size: 11 } } },
+          y: { grid: { color: c.grid }, ticks: { stepSize: 2 }, beginAtZero: true }
+        }
+      }
+    });
+
+    // NC by Status
+    if (charts.ncStatus) charts.ncStatus.destroy();
+    charts.ncStatus = new Chart(document.getElementById('ncStatusChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Abertas', 'Em Análise', 'Fechadas'],
+        datasets: [{ data: [7, 8, 20], backgroundColor: [red, yellow, teal], borderColor: c.border, borderWidth: 3, hoverOffset: 4 }]
+      },
+      options: { cutout: '72%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}` } } }, animation: { animateRotate: true, duration: 900 } }
+    });
+
+    // NC Monthly Trend
+    if (charts.ncTrend) charts.ncTrend.destroy();
+    charts.ncTrend = new Chart(document.getElementById('ncTrendChart'), {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+        datasets: [{
+          label: 'NC registadas',
+          data: [2, 4, 3, 5, 2, 4, 3, 2, 5, 3, 2, 0],
+          borderColor: red,
+          backgroundColor: 'rgba(255,76,106,0.08)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: red,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: c.grid }, ticks: { font: { size: 11 } } },
+          y: { grid: { color: c.grid }, beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+      }
+    });
+
+    // Customer Satisfaction
+    if (charts.satisfaction) charts.satisfaction.destroy();
+    charts.satisfaction = new Chart(document.getElementById('satisfactionChart'), {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov'],
+        datasets: [
+          {
+            label: 'Satisfação (%)',
+            data: [91.5, 92.0, 90.8, 93.2, 94.1, 93.5, 94.8, 95.2, 94.1, 93.8, 94.2],
+            borderColor: teal,
+            backgroundColor: 'rgba(0,212,177,0.08)',
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: teal,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          },
+          {
+            label: 'Meta (90%)',
+            data: [90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90],
+            borderColor: 'rgba(255,209,102,0.5)',
+            borderDash: [6, 4],
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: c.grid }, ticks: { font: { size: 11 } } },
+          y: { grid: { color: c.grid }, min: 86, max: 100, ticks: { callback: v => v + '%' } }
+        }
+      }
+    });
+
+    // Performance KPIs
+    if (charts.perf) charts.perf.destroy();
+    charts.perf = new Chart(document.getElementById('perfChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Eficácia do SGQ', 'Entrega a Tempo (OTD)', 'Satisfação Clientes', 'Conformidade Fornecedor'],
+        datasets: [
+          {
+            label: 'Resultado (%)',
+            data: [97.3, 95.1, 94.2, 98.6],
+            backgroundColor: [teal, tealDark, 'rgba(0,212,177,0.6)', 'rgba(0,212,177,0.45)'],
+            borderRadius: 6,
+          },
+          {
+            label: 'Meta (%)',
+            data: [90, 93, 90, 95],
+            backgroundColor: 'transparent',
+            borderColor: 'rgba(255,209,102,0.6)',
+            borderWidth: 2,
+            borderDash: [4, 4],
+            type: 'line',
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: c.grid }, ticks: { font: { size: 10 } } },
+          y: { grid: { color: c.grid }, min: 80, max: 102, ticks: { callback: v => v + '%' } }
+        }
+      }
+    });
+
+    // Audit Results
+    if (charts.audit) charts.audit.destroy();
+    charts.audit = new Chart(document.getElementById('auditChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Q1 — Fev 2024', 'Q2 — Jun 2024', 'Q3 — Out 2024'],
+        datasets: [
+          { label: 'Conformidades', data: [18, 21, 19], backgroundColor: teal, borderRadius: 4 },
+          { label: 'Não Conformidades', data: [3, 2, 2], backgroundColor: red, borderRadius: 4 },
+          { label: 'Observações', data: [5, 4, 6], backgroundColor: yellow, borderRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { stacked: false, grid: { color: c.grid }, ticks: { font: { size: 11 } } },
+          y: { grid: { color: c.grid }, beginAtZero: true, ticks: { stepSize: 5 } }
+        }
+      }
+    });
+  }
+
+  function applyTheme(theme) {
+    const isLight = theme === 'light';
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('qas-theme', theme);
+    document.getElementById('sidebarLogo').src = isLight ? 'img/logo.png' : 'img/logo-white.png';
+    document.getElementById('themeToggle').innerHTML = isLight ? moonIcon : sunIcon;
+    buildCharts();
+  }
+
+  function toggleTheme() {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+  }
+
+  applyTheme(localStorage.getItem('qas-theme') || 'light');
+</script>
+<script src="js/chat.js"></script>
+</body>
+</html>

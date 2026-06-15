@@ -74,7 +74,7 @@
     .brand-sub { font-size: 13px; color: var(--muted); }
     .module-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 20px;
       align-items: stretch;
     }
@@ -136,6 +136,9 @@
       border: 1px solid rgba(255,255,255,0.08);
       background: rgba(255,255,255,0.03);
     }
+    @media (max-width: 1050px) {
+      .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
     @media (max-width: 820px) {
       body { padding: 20px; }
       .page-shell { padding: 28px; }
@@ -177,6 +180,17 @@
           <p class="module-desc">Aceda ao painel de métricas ambientais para indicadores de energia, água, emissões, circularidade e iniciativas verdes.</p>
         </div>
         <a class="module-btn" id="ambienteBtn" href="ambiente.html">Abrir Ambiente</a>
+      </article>
+
+      <article class="module-card">
+        <div>
+          <div class="module-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+          </div>
+          <h2 class="module-title">Qualidade</h2>
+          <p class="module-desc">Sistema de Gestão da Qualidade ISO 9001: processos, não conformidades, ações corretivas e indicadores de desempenho.</p>
+        </div>
+        <a class="module-btn" href="qualidade.html">Abrir Qualidade</a>
       </article>
     </div>
   </div>
